@@ -1,7 +1,7 @@
 import 'package:hamsa_flutter/models/user/user.dart';
 import 'package:hamsa_flutter/repositories/auth_repo.dart';
 
-class FirebaseAuthService implements IAuthRepository{
+class FirebaseAuthService implements IAuthRepository {
   @override
   // TODO: implement authStateChanges
   Stream<AppUser?> get authStateChanges => throw UnimplementedError();
@@ -23,5 +23,4 @@ class FirebaseAuthService implements IAuthRepository{
     // TODO: implement signUpWithEmailAndPassword
     throw UnimplementedError();
   }
-
 }
