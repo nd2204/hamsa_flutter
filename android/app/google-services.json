@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "640685068278",
+    "project_id": "hamsa-flutter-task-mgr",
+    "storage_bucket": "hamsa-flutter-task-mgr.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:640685068278:android:b1ab09e3acd99d267741d7",
+        "android_client_info": {
+          "package_name": "com.example.hamsa_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoh-rhcW1c8773yRXennXieQ2yF9i8pm0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
