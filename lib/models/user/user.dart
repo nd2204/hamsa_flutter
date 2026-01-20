@@ -1,7 +1,15 @@
-class AppUser {
-  final String id;
-  final String email;
-  
+import 'package:hamsa_flutter/models/user/user_id.dart';
 
-  AppUser({required this.id, required this.email, });
+class AppUser {
+  final UserId id;
+  final String email;
+  final String displayName;
+  final DateTime createdAt;
+
+  AppUser({
+    required this.id,
+    required this.email,
+    required this.displayName,
+    required this.createdAt,
+  });
 }
