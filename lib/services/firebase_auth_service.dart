@@ -35,10 +35,10 @@ class FirebaseAuthService implements IAuthRepository {
     }
   }
 
+  /// Sign out
   @override
-  Future<void> signOut() {
-    // TODO: implement signOut
-    throw UnimplementedError();
+  Future<void> signOut() async{
+    await _firebaseAuth.signOut();
   }
 
   /// Sign up with email and password
