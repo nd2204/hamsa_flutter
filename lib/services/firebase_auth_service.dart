@@ -41,9 +41,18 @@ class FirebaseAuthService implements IAuthRepository {
     throw UnimplementedError();
   }
 
-  @override
-  Future<AppUser> signUpWithEmailAndPassword(String email, String password) {
-    // TODO: implement signUpWithEmailAndPassword
-    throw UnimplementedError();
-  }
+  /// Sign up with email and password
+    @override
+    Future<AppUser> signUpWithEmailAndPassword(String email, String password) async{
+      try{
+        final credential = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+        final user = credential.user;
+        if(user == null){
+          throw Exception('Failed to sign up with email and password');
+        }
+        return AppUser(id: user.uid, email: user.email ?? '');
+      }on FirebaseAuthException catch (e){
+        throw Exception(e.message);
+      }
+    }
 }
