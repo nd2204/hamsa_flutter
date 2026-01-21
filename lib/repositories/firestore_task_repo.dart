@@ -83,12 +83,12 @@ class FirestoreTaskRepository implements ITaskRepository {
 
 extension TaskCommentMapper on TaskComment {
   Map<String, dynamic> toFirestore() {
-    return {'ownerId': ownerId, 'text': text, 'createdAt': createdAt};
+    return {'ownerId': ownerId.value, 'text': text, 'createdAt': createdAt};
   }
 
   static TaskComment fromFirestore(Map<String, dynamic> data) {
     return TaskComment(
-      ownerId: data['ownerId'],
+      ownerId: UserId(data['ownerId']),
       text: data['text'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
     );
