@@ -16,7 +16,10 @@ class FirestoreTaskRepository implements ITaskRepository {
 
   @override
   Future<void> create(TaskModel task) async {
-    await _firestore.collection(collectionPath).add(task.toFirestore());
+    await _firestore
+        .collection(collectionPath)
+        .doc(task.id.value)
+        .set(task.toFirestore());
   }
 
   @override
@@ -95,7 +98,6 @@ extension TaskCommentMapper on TaskComment {
 extension TaskMapper on TaskModel {
   Map<String, dynamic> toFirestore() {
     return {
-      'id': id.value,
       'title': title,
       'description': description,
       'createdAt': FieldValue.serverTimestamp(),
