@@ -79,12 +79,6 @@ class FirestoreTaskRepository implements ITaskRepository {
   }
 
   @override
-  Future<TaskModel> get(String id) {
-    // TODO: implement get
-    throw UnimplementedError();
-  }
-
-  @override
   Future<List<TaskModel>> getByStatus(TaskStatus status) {
     // TODO: implement getByStatus
     throw UnimplementedError();
@@ -105,6 +99,12 @@ class FirestoreTaskRepository implements ITaskRepository {
   @override
   Stream<List<TaskModel>> watch(String id) {
     // TODO: implement watch
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<TaskModel?> findById(TaskId taskId) {
+    // TODO: implement findById
     throw UnimplementedError();
   }
 }
