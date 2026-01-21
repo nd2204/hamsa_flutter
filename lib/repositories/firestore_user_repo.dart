@@ -1,6 +1,7 @@
 import 'package:hamsa_flutter/models/user/user.dart';
 import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/repositories/user_repo.dart';
+import 'package:hamsa_flutter/utils/errors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreUserRepository implements IUserRepository {
