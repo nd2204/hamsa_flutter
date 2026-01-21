@@ -9,6 +9,6 @@ abstract class ITaskRepository {
   Future<void> save(TaskModel task);
   Future<void> delete(TaskId id);
   Future<void> markDeleted(TaskId id, [bool value = true]);
-  Stream<List<TaskModel>> watch(String id);
+  Stream<List<TaskModel>> watch();
   Future<List<TaskModel>> getByStatus(TaskStatus status);
 }

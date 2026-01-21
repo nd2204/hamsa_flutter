@@ -99,6 +99,6 @@ class TaskModel {
       "status=$status,"
       "dueDate=$dueDate,"
       "comments=${comments.map((c) => c.toString())},"
-      "assignees=${assignees.map((u) => u.value)},"
+      "assignees=${assignees.map((u) => u.value)}"
       ")";
 }

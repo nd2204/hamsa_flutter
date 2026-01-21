@@ -71,9 +71,15 @@ class FirestoreTaskRepository implements ITaskRepository {
   }
 
   @override
-  Stream<List<TaskModel>> watch(String id) {
-    // TODO: implement watch
-    throw UnimplementedError();
+  Stream<List<TaskModel>> watch() {
+    return _firestore
+        .collection(collectionPath)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => TaskMapper.fromFirestore(doc))
+              .toList(),
+        );
   }
 
   @override
