@@ -4,8 +4,9 @@ import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/repositories/auth_repo.dart';
 
 class FirebaseAuthService implements IAuthRepository {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-
+  final FirebaseAuth _firebaseAuth;
+  const FirebaseAuthService(FirebaseAuth instance)
+    : _firebaseAuth = instance;
   /// Stream of the current user
   @override
   Stream<AppUser?> get authStateChanges {
