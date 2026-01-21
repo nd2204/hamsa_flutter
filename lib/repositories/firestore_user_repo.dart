@@ -22,7 +22,6 @@ class FirestoreUserRepository implements IUserRepository {
     });
   }
 
-  /// Delete a user(chi an user di)
   @override
   Future<void> delete(UserId id) async {
     final doc = await _firestore.collection('users').doc(id.value).get();
@@ -31,7 +30,6 @@ class FirestoreUserRepository implements IUserRepository {
     }
     return _firestore.collection('users').doc(id.value).delete();
   }
-
 
   /// Get a user by id
   @override
