@@ -8,7 +8,9 @@ class TaskModel {
   final TaskId id;
   final String title;
   final String description;
-  final DateTime createdAt;
+
+  final DateTime? _createdAt;
+  DateTime get createdAt => _createdAt!;
 
   TaskStatus _status;
   TaskStatus get status => _status;
@@ -26,25 +28,14 @@ class TaskModel {
     required this.id,
     required this.title,
     required this.description,
-    required this.createdAt,
     TaskStatus? status,
     Set<UserId>? assignees,
     List<TaskComment>? comments,
+    DateTime? createdAt,
   }) : _assignees = assignees ?? {},
        _status = status ?? TaskStatus.todo,
-       _comments = comments ?? [];
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id.value,
-      'title': title,
-      'description': description,
-      'createdAt': createdAt,
-      'status': status,
-      'assignees': _assignees.map((assignee) => assignee.value).toList(),
-      'comments': _comments.map((comment) => comment.toJson()).toList(),
-    };
-  }
+       _comments = comments ?? [],
+       _createdAt = createdAt;
 
   void setDueDate(DateTime dueDate) {
     if (dueDate.isBefore(createdAt)) {
