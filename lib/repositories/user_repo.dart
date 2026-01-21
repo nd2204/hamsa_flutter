@@ -1,0 +1,9 @@
+import 'package:hamsa_flutter/models/user/user.dart';
+import 'package:hamsa_flutter/models/user/user_id.dart';
+
+abstract class IUserRepository {
+  Future<void> create(AppUser user);
+  Future<AppUser?> get(UserId id);
+  Future<void> update(AppUser user);
+  Future<void> delete(UserId id);
+}
