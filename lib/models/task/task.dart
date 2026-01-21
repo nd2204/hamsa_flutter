@@ -8,7 +8,15 @@ class TaskModel {
   final TaskId id;
   final String title;
   final String description;
-  final DateTime createdAt;
+
+  bool _deleted;
+  bool get deleted => _deleted;
+
+  final DateTime? _createdAt;
+  DateTime get createdAt {
+    if (_createdAt != null) return _createdAt;
+    throw StateError(message: 'createdAt should not be null');
+  }
 
   TaskStatus _status;
   TaskStatus get status => _status;
@@ -19,17 +27,27 @@ class TaskModel {
   final List<TaskComment> _comments;
   List<TaskComment> get comments => _comments;
 
+  final Set<UserId> _assignees;
+  Iterable<UserId> get assignees => _assignees;
+
   TaskModel({
     required this.id,
     required this.title,
     required this.description,
-    required this.createdAt,
+    bool? deleted,
     TaskStatus? status,
     Set<UserId>? assignees,
     List<TaskComment>? comments,
+    DateTime? createdAt,
   }) : _assignees = assignees ?? {},
        _status = status ?? TaskStatus.todo,
-       _comments = comments ?? [];
+       _comments = comments ?? [],
+       _createdAt = createdAt,
+       _deleted = deleted ?? false;
+
+  void markDeleted() {
+    _deleted = true;
+  }
 
   void setDueDate(DateTime dueDate) {
     if (dueDate.isBefore(createdAt)) {
@@ -56,9 +74,6 @@ class TaskModel {
     _status = TaskStatus.todo;
   }
 
-  final Set<UserId> _assignees;
-  Iterable<UserId> get assignees => _assignees;
-
   void assignUser(UserId uid) {
     if (_assignees.add(uid)) return;
     throw StateError(message: "User already assigned to this task");
@@ -72,4 +87,18 @@ class TaskModel {
   void addComment(TaskComment comment) {
     _comments.add(comment);
   }
+
+  @override
+  String toString() =>
+      "TaskModel("
+      "id=$id,"
+      "title=$title,"
+      "description=$description,"
+      "deleted=$_deleted,"
+      "createdAt=$_createdAt,"
+      "status=$status,"
+      "dueDate=$dueDate,"
+      "comments=${comments.map((c) => c.toString())},"
+      "assignees=${assignees.map((u) => u.value)}"
+      ")";
 }
