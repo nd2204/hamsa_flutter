@@ -58,4 +58,22 @@ class FirestoreUserRepository implements IUserRepository {
       'updatedAt': Timestamp.fromDate(DateTime.now()),
     });
   }
+  
+  @override
+  Future<void> markDeleted(UserId id) async {
+    final doc = await _firestore.collection('users').doc(id.value).get();
+    if (!doc.exists) {
+      throw NotFoundError(message: 'User not found');
+    }
+    
+    final data = doc.data()!;
+    if (data['isDeleted'] == true) {
+      throw StateError(message: 'User is already deleted');
+    }
+    
+    return _firestore.collection('users').doc(id.value).update({
+      'isDeleted': true,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
 }
