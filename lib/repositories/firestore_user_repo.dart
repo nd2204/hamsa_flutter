@@ -51,11 +51,21 @@ class FirestoreUserRepository implements IUserRepository {
 
   /// Update a user
   @override
-  Future<void> update(AppUser user) {
+  Future<void> update(AppUser user) async {
+    final doc = await _firestore.collection('users').doc(user.id.value).get();
+    if (!doc.exists) {
+      throw NotFoundError(message: 'User not found');
+    }
+    
+    final data = doc.data()!;
+    if (data['isDeleted'] == true) {
+      throw NotFoundError(message: 'User has been deleted');
+    }
+    
     return _firestore.collection('users').doc(user.id.value).update({
       'email': user.email,
       'displayName': user.displayName,
-      'updatedAt': Timestamp.fromDate(DateTime.now()),
+      'updatedAt': FieldValue.serverTimestamp(),
     });
   }
   
