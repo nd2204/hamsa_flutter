@@ -59,9 +59,15 @@ class FirestoreTaskRepository implements ITaskRepository {
   }
 
   @override
-  Future<void> update(TaskModel task) {
-    // TODO: implement update
-    throw UnimplementedError();
+  Future<void> save(TaskModel task) async {
+    final doc = await _firestore
+        .collection(collectionPath)
+        .doc(task.id.value)
+        .get();
+    if (!doc.exists) {
+      throw NotFoundError(message: 'Cannot found task with ${task.id}');
+    }
+    await doc.reference.update(task.toFirestore());
   }
 
   @override

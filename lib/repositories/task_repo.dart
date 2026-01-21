@@ -6,7 +6,7 @@ abstract class ITaskRepository {
   Future<void> create(TaskModel task);
   Future<List<TaskModel>> listAll();
   Future<TaskModel?> findById(TaskId taskId);
-  Future<void> update(TaskModel task);
+  Future<void> save(TaskModel task);
   Future<void> delete(TaskId id);
   Future<void> markDeleted(TaskId id, [bool value = true]);
   Stream<List<TaskModel>> watch(String id);
