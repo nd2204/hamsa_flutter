@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hamsa_flutter/models/user/user.dart';
 import 'package:hamsa_flutter/models/user/user_id.dart';
-import 'package:hamsa_flutter/repositories/auth_repo.dart';
+import 'package:hamsa_flutter/services/auth_service.dart';
 
-class FirebaseAuthService implements IAuthRepository {
+class FirebaseAuthService implements IAuthService {
   final FirebaseAuth _firebaseAuth;
   const FirebaseAuthService(FirebaseAuth instance)
     : _firebaseAuth = instance;
