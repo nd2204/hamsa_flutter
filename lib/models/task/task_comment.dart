@@ -10,4 +10,12 @@ class TaskComment {
     required this.text,
     required this.createdAt,
   });
+
+  @override
+  String toString() =>
+      "TaskComment("
+      "ownerId=${ownerId.value},"
+      "text=$text,"
+      "createdAt=$createdAt"
+      ")";
 }

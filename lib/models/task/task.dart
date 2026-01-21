@@ -87,4 +87,18 @@ class TaskModel {
   void addComment(TaskComment comment) {
     _comments.add(comment);
   }
+
+  @override
+  String toString() =>
+      "TaskModel("
+      "id=$id,"
+      "title=$title,"
+      "description=$description,"
+      "deleted=$_deleted,"
+      "createdAt=$_createdAt,"
+      "status=$status,"
+      "dueDate=$dueDate,"
+      "comments=${comments.map((c) => c.toString())},"
+      "assignees=${assignees.map((u) => u.value)},"
+      ")";
 }
