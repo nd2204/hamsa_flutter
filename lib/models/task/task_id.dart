@@ -8,6 +8,9 @@ class TaskId {
   factory TaskId.from(String v) => TaskId._(v);
 
   @override
+  String toString() => "TaskId($value)";
+
+  @override
   bool operator ==(Object other) {
     return other is TaskId && other.value == value;
   }
