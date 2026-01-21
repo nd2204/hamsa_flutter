@@ -53,9 +53,9 @@ class FirestoreTaskRepository implements ITaskRepository {
   }
 
   @override
-  Future<List<TaskModel>> list(String id) {
-    // TODO: implement list
-    throw UnimplementedError();
+  Future<List<TaskModel>> listAll() async {
+    final snapshot = await _firestore.collection(collectionPath).get();
+    return snapshot.docs.map((doc) => TaskMapper.fromFirestore(doc)).toList();
   }
 
   @override
