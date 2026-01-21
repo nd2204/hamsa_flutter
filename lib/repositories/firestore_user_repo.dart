@@ -1,6 +1,7 @@
 import 'package:hamsa_flutter/models/user/user.dart';
 import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/repositories/user_repo.dart';
+import 'package:hamsa_flutter/utils/errors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreUserRepository implements IUserRepository {
@@ -15,29 +16,20 @@ class FirestoreUserRepository implements IUserRepository {
       'id': user.id.value,
       'email': user.email,
       'displayName': user.displayName,
-      'createdAt': Timestamp.fromDate(user.createdAt),
-      'updatedAt': null,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
       'isDeleted': false,
     });
   }
 
-  /// Delete a user(chi an user di)
   @override
-  Future<void> delete(UserId id) {
-    return _firestore.collection('users').doc(id.value).update({
-      'isDeleted': true,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+  Future<void> delete(UserId id) async {
+    final doc = await _firestore.collection('users').doc(id.value).get();
+    if (!doc.exists) {
+      throw NotFoundError(message: 'User not found');
+    }
+    return _firestore.collection('users').doc(id.value).delete();
   }
-
-  /// Restore a user()
-  Future<void> restore(UserId id) {
-  return _firestore.collection('users').doc(id.value).update({
-    'isDeleted': false,
-    'updatedAt': FieldValue.serverTimestamp(),
-  });
-}
-
 
   /// Get a user by id
   @override
@@ -58,11 +50,39 @@ class FirestoreUserRepository implements IUserRepository {
 
   /// Update a user
   @override
-  Future<void> update(AppUser user) {
+  Future<void> update(AppUser user) async {
+    final doc = await _firestore.collection('users').doc(user.id.value).get();
+    if (!doc.exists) {
+      throw NotFoundError(message: 'User not found');
+    }
+    
+    final data = doc.data()!;
+    if (data['isDeleted'] == true) {
+      throw NotFoundError(message: 'User has been deleted');
+    }
+    
     return _firestore.collection('users').doc(user.id.value).update({
       'email': user.email,
       'displayName': user.displayName,
-      'updatedAt': Timestamp.fromDate(DateTime.now()),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+  
+  @override
+  Future<void> markDeleted(UserId id) async {
+    final doc = await _firestore.collection('users').doc(id.value).get();
+    if (!doc.exists) {
+      throw NotFoundError(message: 'User not found');
+    }
+    
+    final data = doc.data()!;
+    if (data['isDeleted'] == true) {
+      throw StateError(message: 'User is already deleted');
+    }
+    
+    return _firestore.collection('users').doc(id.value).update({
+      'isDeleted': true,
+      'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 }
