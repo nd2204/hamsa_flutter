@@ -47,9 +47,12 @@ class FirestoreTaskRepository implements ITaskRepository {
   }
 
   @override
-  Future<List<TaskModel>> getByStatus(TaskStatus status) {
-    // TODO: implement getByStatus
-    throw UnimplementedError();
+  Future<List<TaskModel>> listByStatus(TaskStatus status) async {
+    final query = await _firestore
+        .collection(collectionPath)
+        .where('status', isEqualTo: status.index)
+        .get();
+    return query.docs.map((doc) => TaskMapper.fromFirestore(doc)).toList();
   }
 
   @override
