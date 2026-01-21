@@ -1,4 +1,5 @@
 import 'package:hamsa_flutter/models/task/task.dart';
+import 'package:hamsa_flutter/models/task/task_status.dart';
 
 abstract class ITaskRepository {
   Future<void> create(TaskModel task);

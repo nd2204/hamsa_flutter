@@ -19,6 +19,9 @@ class TaskModel {
   final List<TaskComment> _comments;
   List<TaskComment> get comments => _comments;
 
+  final Set<UserId> _assignees;
+  Iterable<UserId> get assignees => _assignees;
+
   TaskModel({
     required this.id,
     required this.title,
@@ -30,6 +33,18 @@ class TaskModel {
   }) : _assignees = assignees ?? {},
        _status = status ?? TaskStatus.todo,
        _comments = comments ?? [];
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id.value,
+      'title': title,
+      'description': description,
+      'createdAt': createdAt,
+      'status': status,
+      'assignees': _assignees.map((assignee) => assignee.value).toList(),
+      'comments': _comments.map((comment) => comment.toJson()).toList(),
+    };
+  }
 
   void setDueDate(DateTime dueDate) {
     if (dueDate.isBefore(createdAt)) {
@@ -55,9 +70,6 @@ class TaskModel {
   void markTodo() {
     _status = TaskStatus.todo;
   }
-
-  final Set<UserId> _assignees;
-  Iterable<UserId> get assignees => _assignees;
 
   void assignUser(UserId uid) {
     if (_assignees.add(uid)) return;
