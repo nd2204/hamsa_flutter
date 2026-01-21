@@ -13,7 +13,10 @@ class TaskModel {
   bool get deleted => _deleted;
 
   final DateTime? _createdAt;
-  DateTime get createdAt => _createdAt!;
+  DateTime get createdAt {
+    if (_createdAt != null) return _createdAt;
+    throw StateError(message: 'createdAt should not be null');
+  }
 
   TaskStatus _status;
   TaskStatus get status => _status;
