@@ -68,9 +68,13 @@ class FirestoreTaskRepository implements ITaskRepository {
   }
 
   @override
-  Future<TaskModel?> findById(TaskId taskId) {
-    // TODO: implement findById
-    throw UnimplementedError();
+  Future<TaskModel?> findById(TaskId taskId) async {
+    final doc = await _firestore
+        .collection(collectionPath)
+        .doc(taskId.value)
+        .get();
+    if (!doc.exists) return null;
+    return TaskMapper.fromFirestore(doc);
   }
 }
 
