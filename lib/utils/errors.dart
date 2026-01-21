@@ -18,3 +18,7 @@ class AuthenticationError extends DomainError {
   AuthenticationError([String reason = "Authentication failed"])
     : super(message: reason);
 }
+
+class NotFoundError extends DomainError {
+  NotFoundError({required super.message});
+}
