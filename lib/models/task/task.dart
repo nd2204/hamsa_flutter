@@ -9,6 +9,9 @@ class TaskModel {
   final String title;
   final String description;
 
+  bool _deleted;
+  bool get deleted => _deleted;
+
   final DateTime? _createdAt;
   DateTime get createdAt => _createdAt!;
 
@@ -28,6 +31,7 @@ class TaskModel {
     required this.id,
     required this.title,
     required this.description,
+    bool? deleted,
     TaskStatus? status,
     Set<UserId>? assignees,
     List<TaskComment>? comments,
@@ -35,7 +39,12 @@ class TaskModel {
   }) : _assignees = assignees ?? {},
        _status = status ?? TaskStatus.todo,
        _comments = comments ?? [],
-       _createdAt = createdAt;
+       _createdAt = createdAt,
+       _deleted = deleted ?? false;
+
+  void markDeleted() {
+    _deleted = true;
+  }
 
   void setDueDate(DateTime dueDate) {
     if (dueDate.isBefore(createdAt)) {
