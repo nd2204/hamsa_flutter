@@ -23,20 +23,13 @@ class FirestoreUserRepository implements IUserRepository {
 
   /// Delete a user(chi an user di)
   @override
-  Future<void> delete(UserId id) {
-    return _firestore.collection('users').doc(id.value).update({
-      'isDeleted': true,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+  Future<void> delete(UserId id) async {
+    final doc = await _firestore.collection('users').doc(id.value).get();
+    if (!doc.exists) {
+      throw NotFoundError(message: 'User not found');
+    }
+    return _firestore.collection('users').doc(id.value).delete();
   }
-
-  /// Restore a user()
-  Future<void> restore(UserId id) {
-  return _firestore.collection('users').doc(id.value).update({
-    'isDeleted': false,
-    'updatedAt': FieldValue.serverTimestamp(),
-  });
-}
 
 
   /// Get a user by id
