@@ -15,8 +15,8 @@ class FirestoreUserRepository implements IUserRepository {
       'id': user.id.value,
       'email': user.email,
       'displayName': user.displayName,
-      'createdAt': Timestamp.fromDate(user.createdAt),
-      'updatedAt': null,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
       'isDeleted': false,
     });
   }
