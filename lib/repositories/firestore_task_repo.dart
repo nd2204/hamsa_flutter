@@ -5,6 +5,7 @@ import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
 import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/repositories/task_repo.dart';
+import 'package:hamsa_flutter/utils/errors.dart';
 
 class FirestoreTaskRepository implements ITaskRepository {
   final FirebaseFirestore _firestore;
@@ -19,9 +20,27 @@ class FirestoreTaskRepository implements ITaskRepository {
   }
 
   @override
-  Future<void> delete(String id) {
-    // TODO: implement delete
-    throw UnimplementedError();
+  Future<void> delete(TaskId taskId) async {
+    final doc = await _firestore
+        .collection(collectionPath)
+        .doc(taskId.value)
+        .get();
+    if (!doc.exists) {
+      throw NotFoundError(message: 'Cannot found task with id=${taskId.value}');
+    }
+    doc.reference.delete();
+  }
+
+  @override
+  Future<void> markDeleted(TaskId taskId, [bool value = true]) async {
+    final doc = await _firestore
+        .collection(collectionPath)
+        .doc(taskId.value)
+        .get();
+    if (!doc.exists) {
+      throw NotFoundError(message: 'Cannot found task with id=${taskId.value}');
+    }
+    doc.reference.update({'deleted': value});
   }
 
   @override
