@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'di/app_dependencies.dart';
 import 'services/auth_service.dart';
+import 'repositories/user_repo.dart';
 import 'viewmodels/login_viewmodel.dart';
 import 'viewmodels/signup_viewmodel.dart';
+import 'viewmodels/profile_viewmodel.dart';
 import 'constants/app_constants.dart';
 
 void main() async {
@@ -25,6 +27,10 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => SignUpViewModel(getIt<IAuthService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              ProfileViewModel(getIt<IAuthService>(), getIt<IUserRepository>()),
         ),
       ],
       child: const MainApp(),
@@ -47,7 +53,6 @@ class MainApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: AppConstants.primaryColor),
       ),
-      home: const Scaffold(body: Center(child: Text('Hello World!'))),
     );
   }
 }
