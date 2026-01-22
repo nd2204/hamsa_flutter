@@ -1,0 +1,519 @@
+import 'package:flutter/material.dart';
+import 'package:hamsa_flutter/views/add_task_view.dart';
+import 'package:hamsa_flutter/views/profile_view.dart';
+
+class HomeView extends StatefulWidget {
+  const HomeView({super.key});
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  String selectedStatus = "Tất cả";
+  String selectedSort = "Mới nhất";
+
+  List<Map<String, dynamic>> tasks = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F8FC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        title: Row(
+          children: const [
+            Icon(Icons.check_box_outlined, color: Color(0xFF5B4BFF)),
+            SizedBox(width: 8),
+            Text('Task Manager', style: TextStyle(color: Colors.black)),
+          ],
+        ),
+        actions: [
+          InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileView()),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              child: Row(
+                children: const [
+                  Icon(Icons.person, color: Colors.grey),
+                  SizedBox(width: 8),
+                  Text('Do Sy Chien', style: TextStyle(color: Colors.black)),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 24),
+          TextButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.logout, color: Colors.grey),
+            label: const Text("Logout", style: TextStyle(color: Colors.grey)),
+          ),
+          const SizedBox(width: 16),
+        ],
+      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1100),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildProgressCard(),
+                const SizedBox(height: 24),
+                _buildHeaderRow(),
+                const SizedBox(height: 16),
+                _buildFilterRow(),
+                const SizedBox(height: 24),
+                _buildTasksList(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgressCard() {
+    final totalTasks = tasks.length;
+    final completedTasks = tasks
+        .where((task) => task['status'] == 'Hoàn thành')
+        .length;
+    final progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
+    final percentage = (progress * 100).toInt();
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Tiến độ hoàn thành"),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "$completedTasks / $totalTasks tasks",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                '0%',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF5B4BFF),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          LinearProgressIndicator(
+            value: progress,
+            minHeight: 5,
+            color: Color(0xFF5B4BFF),
+            backgroundColor: Colors.grey,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          "Danh sách Tasks",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF5B4BFF),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+          ),
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddTaskView()),
+            );
+
+            if (result != null) {
+              // Kiểm tra xem có phải edit hay create
+              if (result['isEdit'] == true) {
+                // Trường hợp EDIT: Cập nhật task cũ
+                setState(() {
+                  tasks[result['index']] = result['task'];
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Đã cập nhật task'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } else {
+                // Trường hợp CREATE: Thêm task mới
+                setState(() {
+                  tasks.add(result['task']);
+                });
+              }
+            }
+          },
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text(
+            "Thêm Task",
+            style: TextStyle(color: Colors.white, fontSize: 18),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterRow() {
+    return Container(
+      height: 60,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.filter_alt_outlined),
+          const SizedBox(width: 8),
+          const Text("Trạng thái:"),
+          const SizedBox(width: 8),
+          // Dropdown for status filter
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade400),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: selectedStatus,
+                icon: const Icon(Icons.keyboard_arrow_down),
+                borderRadius: BorderRadius.circular(12),
+                dropdownColor: Colors.grey.shade200,
+                items: const [
+                  DropdownMenuItem(value: "Tất cả", child: Text("Tất cả")),
+                  DropdownMenuItem(
+                    value: "Chưa bắt đầu",
+                    child: Text("Chưa bắt đầu"),
+                  ),
+                  DropdownMenuItem(
+                    value: "Đang thực hiện",
+                    child: Text("Đang thực hiện"),
+                  ),
+                  DropdownMenuItem(
+                    value: "Hoàn thành",
+                    child: Text("Hoàn thành"),
+                  ),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    selectedStatus = value!;
+                  });
+                },
+              ),
+            ),
+          ),
+          const SizedBox(width: 20),
+          const Icon(Icons.sort),
+          const SizedBox(width: 8),
+          const Text("Sắp xếp: "),
+          const SizedBox(width: 8),
+
+          // dropdown for ...
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade400, width: 1.5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: selectedSort,
+                icon: const Icon(Icons.keyboard_arrow_down),
+                borderRadius: BorderRadius.circular(12),
+                dropdownColor: Colors.grey.shade200,
+                itemHeight: 50,
+                items: const [
+                  DropdownMenuItem(value: "Mới nhất", child: Text("Mới nhất")),
+                  DropdownMenuItem(value: "Cũ nhất", child: Text("Cũ nhất")),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    selectedSort = value!;
+                  });
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTasksList() {
+    // THÊM: Lọc tasks theo status
+    List<Map<String, dynamic>> filteredTasks = tasks;
+    if (selectedStatus != "Tất cả") {
+      filteredTasks = tasks
+          .where((t) => t['status'] == selectedStatus)
+          .toList();
+    }
+
+    // Nếu không có task nào sau khi lọc
+    if (filteredTasks.isEmpty) {
+      return Expanded(
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+          ),
+          child: const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  "Không có task nào",
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Nếu có tasks, hiển thị danh sách
+    return Expanded(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+        ),
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: filteredTasks.length,
+          itemBuilder: (context, index) {
+            return _buildTaskCard(filteredTasks[index], index);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTaskCard(Map<String, dynamic> task, int index) {
+    final title = task['title'] ?? 'Không có tiêu đề';
+    final description = task['description'] ?? 'Không có mô tả';
+    final status = task['status'] ?? 'Chưa bắt đầu';
+    final assignedTo = task['assignedTo'] ?? 'Chưa giao';
+    final dueDate = task['dueDate'] ?? 'Chưa có';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Row(
+        children: [
+          // Icon check circle bên trái
+          Icon(
+            Icons.check_circle_outline,
+            color: status == 'Hoàn thành'
+                ? const Color(0xFF16A34A)
+                : Colors.grey.shade400,
+            size: 24,
+          ),
+          const SizedBox(width: 16),
+
+          // Phần nội dung chính
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 4),
+
+                // Description
+                Text(
+                  description,
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+
+                // Footer: Status badge, assignee, date
+                Row(
+                  children: [
+                    // Status badge
+                    _buildStatusBadge(status),
+                    const SizedBox(width: 12),
+
+                    // Assignee
+                    Icon(
+                      Icons.person_outline,
+                      size: 16,
+                      color: Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      assignedTo,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    // Calendar icon
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 16,
+                      color: Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      dueDate,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // 2 buttons bên phải: Edit, Delete
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Edit button
+              IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                color: const Color(0xFF5B4BFF),
+                iconSize: 20,
+                onPressed: () async {
+                  // Navigate đến AddTaskView với dữ liệu task cần edit
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddTaskView(
+                        taskToEdit: task, // Truyền task hiện tại
+                        taskIndex: index, // Truyền vị trí trong list
+                      ),
+                    ),
+                  );
+
+                  // Xử lý kết quả trả về
+                  if (result != null && result['isEdit'] == true) {
+                    setState(() {
+                      tasks[result['index']] = result['task'];
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Đã cập nhật task'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                },
+              ),
+
+              // Delete button
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                color: Colors.red,
+                iconSize: 20,
+                onPressed: () {
+                  setState(() {
+                    tasks.removeAt(index);
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Đã xóa task'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // THÊM: Widget hiển thị status badge
+  Widget _buildStatusBadge(String status) {
+    Color bgColor;
+    Color textColor;
+
+    switch (status) {
+      case 'Hoàn thành':
+        bgColor = const Color(0xFFDCFCE7);
+        textColor = const Color(0xFF16A34A);
+        break;
+      case 'Đang thực hiện':
+        bgColor = const Color(0xFFDEEBFF);
+        textColor = const Color(0xFF2563EB);
+        break;
+      default:
+        bgColor = const Color(0xFFF3F4F6);
+        textColor = const Color(0xFF6B7280);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
