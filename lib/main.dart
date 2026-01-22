@@ -1,13 +1,31 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/routes.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
+import 'di/app_dependencies.dart';
+import 'services/auth_service.dart';
+import 'viewmodels/login_viewmodel.dart';
+import 'constants/app_constants.dart';
 
 void main() async {
   registerStaticAppRoute();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MainApp());
+
+  // Setup dependency injection
+  setupDependencies();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => LoginViewModel(getIt<IAuthService>()),
+        ),
+      ],
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -18,7 +36,14 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: AppRoute.login.name,
       onGenerateRoute: generateRoute,
-      home: Scaffold(body: Center(child: Text('Hello World!'))),
+      title: 'Hamsa Flutter',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primaryColor: AppConstants.primaryColor,
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: AppConstants.primaryColor),
+      ),
+      home: const Scaffold(body: Center(child: Text('Hello World!'))),
     );
   }
 }
