@@ -125,4 +125,20 @@ class FirestoreUserRepository implements IUserRepository {
       UserFieldLabel.updatedAt: FieldValue.serverTimestamp(),
     });
   }
+
+  @override
+  Future<List<AppUser>> listAll() async {
+    final query = await _firestore.collection(collectionPath).get();
+    return query.docs.map(UserMapper.fromFirestore).toList();
+  }
+
+  @override
+  Stream<List<AppUser>> watchAll() {
+    return _firestore
+        .collection(collectionPath)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs.map(UserMapper.fromFirestore).toList(),
+        );
+  }
 }
