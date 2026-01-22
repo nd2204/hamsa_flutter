@@ -5,7 +5,6 @@ import 'package:hamsa_flutter/utils/errors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserFieldLabel {
-  static const id = 'id';
   static const createdAt = 'createdAt';
   static const updatedAt = 'updatedAt';
   static const email = 'email';
@@ -14,9 +13,11 @@ class UserFieldLabel {
 }
 
 extension UserFieldExtractor on DocumentSnapshot {
-  UserId get uid => UserId(UserFieldLabel.id);
-  DateTime get createdAt => (get(UserFieldLabel.createdAt) as Timestamp).toDate();
-  DateTime get updatedAt => (get(UserFieldLabel.updatedAt) as Timestamp).toDate();
+  UserId get uid => UserId(id);
+  DateTime get createdAt =>
+      (get(UserFieldLabel.createdAt) as Timestamp).toDate();
+  DateTime get updatedAt =>
+      (get(UserFieldLabel.updatedAt) as Timestamp).toDate();
   String get email => get(UserFieldLabel.email);
   String get displayName => get(UserFieldLabel.displayName);
   bool get isDeleted => get(UserFieldLabel.isDeleted);
