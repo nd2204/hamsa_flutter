@@ -53,6 +53,7 @@ class MainApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: AppConstants.primaryColor),
       ),
+      home: Scaffold(body: Center(child: Text('Hello, World!'))),
     );
   }
 }
