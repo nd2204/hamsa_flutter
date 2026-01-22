@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/views/login_view.dart';
+import 'package:hamsa_flutter/views/profile_view.dart';
+import 'package:hamsa_flutter/views/signup_view.dart';
 
 // Maintain a mapping from route back to enum
 // Only work for static route name
@@ -8,6 +10,7 @@ typedef RouteGeneratorCallback = Route<dynamic>? Function(RouteSettings)?;
 
 final _routes = <String, Widget Function()>{
   AppRoute.login.name: () => const LoginView(),
+  AppRoute.signup.name: () => const SignUpView(),
 };
 
 enum AppRoute {
