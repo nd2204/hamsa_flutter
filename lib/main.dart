@@ -6,6 +6,7 @@ import 'firebase_options.dart';
 import 'di/app_dependencies.dart';
 import 'services/auth_service.dart';
 import 'viewmodels/login_viewmodel.dart';
+import 'viewmodels/signup_viewmodel.dart';
 import 'constants/app_constants.dart';
 
 void main() async {
@@ -21,6 +22,9 @@ void main() async {
       providers: [
         ChangeNotifierProvider(
           create: (_) => LoginViewModel(getIt<IAuthService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SignUpViewModel(getIt<IAuthService>()),
         ),
       ],
       child: const MainApp(),
