@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/app_constants.dart';
+import 'package:hamsa_flutter/constants/routes.dart';
 
 class LoginSignUpLink extends StatelessWidget {
   const LoginSignUpLink({super.key});
@@ -12,8 +13,7 @@ class LoginSignUpLink extends StatelessWidget {
         const Text(AppStrings.noAccount),
         GestureDetector(
           onTap: () {
-            // TODO: Navigate to sign up view
-            print('Sign up link clicked');
+            Navigator.pushNamed(context, AppRoute.signup.name);
           },
           child: const Text(
             AppStrings.signUpNow,
