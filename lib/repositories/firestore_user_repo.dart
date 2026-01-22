@@ -15,8 +15,8 @@ class UserFieldLabel {
 
 extension UserFieldExtractor on DocumentSnapshot {
   UserId get uid => UserId(UserFieldLabel.id);
-  DateTime get createdAt => get(UserFieldLabel.createdAt);
-  DateTime get updatedAt => get(UserFieldLabel.updatedAt);
+  DateTime get createdAt => (get(UserFieldLabel.createdAt) as Timestamp).toDate();
+  DateTime get updatedAt => (get(UserFieldLabel.updatedAt) as Timestamp).toDate();
   String get email => get(UserFieldLabel.email);
   String get displayName => get(UserFieldLabel.displayName);
   bool get isDeleted => get(UserFieldLabel.isDeleted);
@@ -74,16 +74,7 @@ class FirestoreUserRepository implements IUserRepository {
   Future<AppUser?> get(UserId id) async {
     final doc = await _firestore.collection(collectionPath).doc(id.value).get();
     if (!doc.exists) return null;
-
-    final data = doc.data()!;
-    if (data['isDeleted'] == true) return null;
-
-    return AppUser(
-      id: UserId(data['id']),
-      email: data['email'],
-      displayName: data['displayName'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-    );
+    return UserMapper.fromFirestore(doc);
   }
 
   /// Update a user
