@@ -16,14 +16,17 @@ class FirebaseAuthService implements IAuthService {
   /// Stream of the current user
   @override
   Stream<AppUser?> get authStateChanges {
-    return _firebaseAuth.authStateChanges().map((user) {
+    return _firebaseAuth.authStateChanges().asyncMap((user) async {
       if (user == null) return null;
-      return AppUser(
-        id: UserId(user.uid),
-        email: user.email ?? '',
-        displayName: user.displayName ?? '',
-        createdAt: DateTime.now(),
-      );
+
+      // Lấy user từ repository để có đầy đủ thông tin bao gồm isDeleted
+      final appUser = await _userRepository.get(UserId(user.uid));
+      if (appUser == null || appUser.isDeleted) {
+        await _firebaseAuth.signOut();
+        return null;
+      }
+
+      return appUser;
     });
   }
 
@@ -42,12 +45,19 @@ class FirebaseAuthService implements IAuthService {
       if (user == null) {
         throw Exception('Failed to sign in with email and password');
       }
-      return AppUser(
-        id: UserId(user.uid),
-        email: email,
-        displayName: user.displayName ?? '',
-        createdAt: DateTime.now(),
-      );
+
+      // Lấy user từ repository để có đầy đủ thông tin bao gồm isDeleted
+      final appUser = await _userRepository.get(UserId(user.uid));
+      if (appUser == null) {
+        throw Exception('User not found');
+      }
+
+      if (appUser.isDeleted) {
+        await _firebaseAuth.signOut();
+        throw Exception('Tài khoản đã bị xóa');
+      }
+
+      return appUser;
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message);
     }
