@@ -20,49 +20,7 @@ class _HomeViewState extends State<HomeView> {
       builder: (context, viewModel, child) {
         return Scaffold(
           backgroundColor: const Color(0xFFF6F8FC),
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 1,
-            title: Row(
-              children: const [
-                Icon(Icons.check_box_outlined, color: Color(0xFF5B4BFF)),
-                SizedBox(width: 8),
-                Text('Task Manager', style: TextStyle(color: Colors.black)),
-              ],
-            ),
-            actions: [
-              InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: viewModel.navigateToAddTaskCallback(context),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 6,
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.person, color: Colors.grey),
-                      const SizedBox(width: 8),
-                      Text(
-                        viewModel.userDisplayName,
-                        style: const TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 24),
-              TextButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.logout, color: Colors.grey),
-                label: const Text(
-                  "Logout",
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-              const SizedBox(width: 16),
-            ],
-          ),
+          appBar: _HomeAppBar(viewModel: viewModel, context: context),
           body: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1100),
@@ -523,4 +481,47 @@ class _HomeViewState extends State<HomeView> {
       ),
     );
   }
+}
+
+class _HomeAppBar extends AppBar {
+  final HomeViewModel viewModel;
+  final BuildContext context;
+  _HomeAppBar({required this.viewModel, required this.context})
+    : super(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        title: Row(
+          children: const [
+            Icon(Icons.check_box_outlined, color: Color(0xFF5B4BFF)),
+            SizedBox(width: 8),
+            Text(AppStrings.appTitle, style: TextStyle(color: Colors.black)),
+          ],
+        ),
+        actions: [
+          InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: viewModel.navigateToProfileCallback(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              child: Row(
+                children: [
+                  const Icon(Icons.person, color: Colors.grey),
+                  const SizedBox(width: 8),
+                  Text(
+                    viewModel.userDisplayName,
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 24),
+          TextButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.logout, color: Colors.grey),
+            label: const Text("Logout", style: TextStyle(color: Colors.grey)),
+          ),
+          const SizedBox(width: 16),
+        ],
+      );
 }
