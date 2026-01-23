@@ -64,7 +64,7 @@ class _HomeViewState extends State<HomeView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Tiến độ hoàn thành"),
+          const Text(AppStrings.taskProgressTitle),
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -262,7 +262,7 @@ class _HomeViewState extends State<HomeView> {
                 Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
                 SizedBox(height: 16),
                 Text(
-                  "Không có task nào",
+                  AppStrings.noTask,
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
@@ -412,12 +412,14 @@ class _HomeViewState extends State<HomeView> {
                     setState(() {
                       tasks[result['index']] = result['task'];
                     });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Đã cập nhật task'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(AppStrings.taskUpdated),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
                   }
                 },
               ),
@@ -433,7 +435,7 @@ class _HomeViewState extends State<HomeView> {
                   });
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Đã xóa task'),
+                      content: Text(AppStrings.taskDeleted),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -486,6 +488,7 @@ class _HomeViewState extends State<HomeView> {
 class _HomeAppBar extends AppBar {
   final HomeViewModel viewModel;
   final BuildContext context;
+
   _HomeAppBar({required this.viewModel, required this.context})
     : super(
         backgroundColor: Colors.white,
@@ -519,7 +522,10 @@ class _HomeAppBar extends AppBar {
           TextButton.icon(
             onPressed: () {},
             icon: const Icon(Icons.logout, color: Colors.grey),
-            label: const Text("Logout", style: TextStyle(color: Colors.grey)),
+            label: const Text(
+              AppStrings.logoutButtonTitle,
+              style: TextStyle(color: Colors.grey),
+            ),
           ),
           const SizedBox(width: 16),
         ],

@@ -50,7 +50,7 @@ class AppStrings {
   // Profile
   static const appTitle = 'Task Manager';
   static const defaultUserName = 'User';
-  static const logoutButton = 'Logout';
+  static const logoutButtonTitle = 'Đăng Xuất';
   static const profileTitle = 'Thông tin cá nhân';
   static const cancelButton = 'Hủy';
   static const saveChangesButton = 'Lưu thay đổi';
@@ -73,4 +73,8 @@ class AppStrings {
   // Home
   static const selectedStatus = "Tất cả";
   static const selectedSort = "Mới nhất";
+  static const taskUpdated = "Đã cập nhật task";
+  static const taskDeleted = "Đã xóa task";
+  static const taskProgressTitle = "Tiến độ hoàn thành";
+  static const noTask = "Không có task nào";
 }

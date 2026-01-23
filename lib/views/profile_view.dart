@@ -83,7 +83,7 @@ class ProfileView extends StatelessWidget {
                 onPressed: () => _handleSignOut(context, viewModel),
                 icon: const Icon(Icons.logout, color: Colors.grey),
                 label: const Text(
-                  AppStrings.logoutButton,
+                  AppStrings.logoutButtonTitle,
                   style: TextStyle(color: Colors.grey),
                 ),
               ),
