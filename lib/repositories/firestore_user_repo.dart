@@ -28,8 +28,10 @@ class UserMapper {
     return AppUser(
       id: doc.uid,
       createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
       email: doc.email,
       displayName: doc.displayName,
+      isDeleted: doc.isDeleted,
     );
   }
 
@@ -40,7 +42,7 @@ class UserMapper {
       'displayName': user.displayName,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
-      'isDeleted': false,
+      'isDeleted': user.isDeleted,
     };
   }
 }
