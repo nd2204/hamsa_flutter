@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hamsa_flutter/constants/app_constants.dart';
+import 'package:hamsa_flutter/models/task/task.dart';
+import 'package:hamsa_flutter/viewmodels/home_viewmodel.dart';
 import 'package:hamsa_flutter/views/add_task_view.dart';
-import 'package:hamsa_flutter/views/profile_view.dart';
+import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -10,74 +13,37 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  String selectedStatus = "Tất cả";
-  String selectedSort = "Mới nhất";
-
   List<Map<String, dynamic>> tasks = [];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: Row(
-          children: const [
-            Icon(Icons.check_box_outlined, color: Color(0xFF5B4BFF)),
-            SizedBox(width: 8),
-            Text('Task Manager', style: TextStyle(color: Colors.black)),
-          ],
-        ),
-        actions: [
-          InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileView()),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              child: Row(
-                children: const [
-                  Icon(Icons.person, color: Colors.grey),
-                  SizedBox(width: 8),
-                  Text('Do Sy Chien', style: TextStyle(color: Colors.black)),
-                ],
+    return Consumer<HomeViewModel>(
+      builder: (context, viewModel, child) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFF6F8FC),
+          appBar: _HomeAppBar(viewModel: viewModel, context: context),
+          body: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1100),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProgressCard(),
+                    const SizedBox(height: 24),
+                    _buildHeaderRow(),
+                    const SizedBox(height: 16),
+                    _buildFilterRow(),
+                    const SizedBox(height: 24),
+                    _buildTasksList(viewModel),
+                  ],
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 24),
-          TextButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.logout, color: Colors.grey),
-            label: const Text("Logout", style: TextStyle(color: Colors.grey)),
-          ),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1100),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildProgressCard(),
-                const SizedBox(height: 24),
-                _buildHeaderRow(),
-                const SizedBox(height: 16),
-                _buildFilterRow(),
-                const SizedBox(height: 24),
-                _buildTasksList(),
-              ],
-            ),
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -99,7 +65,7 @@ class _HomeViewState extends State<HomeView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Tiến độ hoàn thành"),
+          const Text(AppStrings.taskProgressTitle),
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -207,7 +173,7 @@ class _HomeViewState extends State<HomeView> {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: selectedStatus,
+                value: AppStrings.selectedStatus,
                 icon: const Icon(Icons.keyboard_arrow_down),
                 borderRadius: BorderRadius.circular(12),
                 dropdownColor: Colors.grey.shade200,
@@ -227,9 +193,9 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ],
                 onChanged: (value) {
-                  setState(() {
-                    selectedStatus = value!;
-                  });
+                  // setState(() {
+                  //   selectedStatus = value!;
+                  // });
                 },
               ),
             ),
@@ -249,7 +215,7 @@ class _HomeViewState extends State<HomeView> {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: selectedSort,
+                value: AppStrings.selectedSort,
                 icon: const Icon(Icons.keyboard_arrow_down),
                 borderRadius: BorderRadius.circular(12),
                 dropdownColor: Colors.grey.shade200,
@@ -259,9 +225,9 @@ class _HomeViewState extends State<HomeView> {
                   DropdownMenuItem(value: "Cũ nhất", child: Text("Cũ nhất")),
                 ],
                 onChanged: (value) {
-                  setState(() {
-                    selectedSort = value!;
-                  });
+                  // setState(() {
+                  //   selectedSort = value!;
+                  // });
                 },
               ),
             ),
@@ -271,12 +237,12 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildTasksList() {
+  Widget _buildTasksList(HomeViewModel viewModel) {
     // THÊM: Lọc tasks theo status
     List<Map<String, dynamic>> filteredTasks = tasks;
-    if (selectedStatus != "Tất cả") {
+    if (AppStrings.selectedStatus != "Tất cả") {
       filteredTasks = tasks
-          .where((t) => t['status'] == selectedStatus)
+          .where((t) => t['status'] == AppStrings.selectedStatus)
           .toList();
     }
 
@@ -297,7 +263,7 @@ class _HomeViewState extends State<HomeView> {
                 Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
                 SizedBox(height: 16),
                 Text(
-                  "Không có task nào",
+                  AppStrings.noTask,
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
@@ -315,23 +281,32 @@ class _HomeViewState extends State<HomeView> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
         ),
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: filteredTasks.length,
-          itemBuilder: (context, index) {
-            return _buildTaskCard(filteredTasks[index], index);
+        child: StreamBuilder(
+          stream: viewModel.taskNotifier.watchTasksByStatus(),
+          builder: (context, asyncSnapshot) {
+            if (!asyncSnapshot.hasData) {
+              return CircularProgressIndicator();
+            }
+            final data = asyncSnapshot.data!;
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                return _buildTaskCard(data[index], index);
+              },
+            );
           },
         ),
       ),
     );
   }
 
-  Widget _buildTaskCard(Map<String, dynamic> task, int index) {
-    final title = task['title'] ?? 'Không có tiêu đề';
-    final description = task['description'] ?? 'Không có mô tả';
-    final status = task['status'] ?? 'Chưa bắt đầu';
-    final assignedTo = task['assignedTo'] ?? 'Chưa giao';
-    final dueDate = task['dueDate'] ?? 'Chưa có';
+  Widget _buildTaskCard(TaskModel task, int index) {
+    final title = task.title;
+    final description = task.description;
+    final status = task.status.displayName;
+    final assignedTo = task.assignees.first; // NOTE: updated to list
+    final dueDate = task.dueDate;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -393,7 +368,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      assignedTo,
+                      assignedTo.toString(),
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade600,
@@ -409,7 +384,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      dueDate,
+                      dueDate.toString(),
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade600,
@@ -447,12 +422,14 @@ class _HomeViewState extends State<HomeView> {
                     setState(() {
                       tasks[result['index']] = result['task'];
                     });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Đã cập nhật task'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(AppStrings.taskUpdated),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
                   }
                 },
               ),
@@ -468,7 +445,7 @@ class _HomeViewState extends State<HomeView> {
                   });
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Đã xóa task'),
+                      content: Text(AppStrings.taskDeleted),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -516,4 +493,51 @@ class _HomeViewState extends State<HomeView> {
       ),
     );
   }
+}
+
+class _HomeAppBar extends AppBar {
+  final HomeViewModel viewModel;
+  final BuildContext context;
+
+  _HomeAppBar({required this.viewModel, required this.context})
+    : super(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        title: Row(
+          children: const [
+            Icon(Icons.check_box_outlined, color: Color(0xFF5B4BFF)),
+            SizedBox(width: 8),
+            Text(AppStrings.appTitle, style: TextStyle(color: Colors.black)),
+          ],
+        ),
+        actions: [
+          InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: viewModel.navigateToProfileCallback(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              child: Row(
+                children: [
+                  const Icon(Icons.person, color: Colors.grey),
+                  const SizedBox(width: 8),
+                  Text(
+                    viewModel.userDisplayName,
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 24),
+          TextButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.logout, color: Colors.grey),
+            label: const Text(
+              AppStrings.logoutButtonTitle,
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          const SizedBox(width: 16),
+        ],
+      );
 }

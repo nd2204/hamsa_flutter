@@ -74,15 +74,17 @@ class FirestoreTaskRepository implements ITaskRepository {
   }
 
   @override
-  Stream<List<TaskModel>> watch() {
-    return _firestore
-        .collection(collectionPath)
-        .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => TaskMapper.fromFirestore(doc))
-              .toList(),
-        );
+  Stream<List<TaskModel>> watch({TaskStatus? status}) {
+    final collection = _firestore.collection(collectionPath);
+
+    final query = status == null
+        ? collection.where('status', isEqualTo: status?.index)
+        : collection;
+
+    return query.snapshots().map(
+      (snapshot) =>
+          snapshot.docs.map((doc) => TaskMapper.fromFirestore(doc)).toList(),
+    );
   }
 
   @override

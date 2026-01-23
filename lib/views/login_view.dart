@@ -67,7 +67,7 @@ class LoginView extends StatelessWidget {
           backgroundColor: Colors.green,
         ),
       );
+      Navigator.pushReplacementNamed(context, AppRoute.home.name);
     }
-    Navigator.pushReplacementNamed(context, AppRoute.userProfile.name);
   }
 }
