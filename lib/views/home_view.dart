@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/app_constants.dart';
+import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/viewmodels/home_viewmodel.dart';
 import 'package:hamsa_flutter/views/add_task_view.dart';
 import 'package:provider/provider.dart';
@@ -35,7 +36,7 @@ class _HomeViewState extends State<HomeView> {
                     const SizedBox(height: 16),
                     _buildFilterRow(),
                     const SizedBox(height: 24),
-                    _buildTasksList(),
+                    _buildTasksList(viewModel),
                   ],
                 ),
               ),
@@ -236,7 +237,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildTasksList() {
+  Widget _buildTasksList(HomeViewModel viewModel) {
     // THÊM: Lọc tasks theo status
     List<Map<String, dynamic>> filteredTasks = tasks;
     if (AppStrings.selectedStatus != "Tất cả") {
@@ -280,23 +281,32 @@ class _HomeViewState extends State<HomeView> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
         ),
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: filteredTasks.length,
-          itemBuilder: (context, index) {
-            return _buildTaskCard(filteredTasks[index], index);
+        child: StreamBuilder(
+          stream: viewModel.taskNotifier.watchTasksByStatus(),
+          builder: (context, asyncSnapshot) {
+            if (!asyncSnapshot.hasData) {
+              return CircularProgressIndicator();
+            }
+            final data = asyncSnapshot.data!;
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                return _buildTaskCard(data[index], index);
+              },
+            );
           },
         ),
       ),
     );
   }
 
-  Widget _buildTaskCard(Map<String, dynamic> task, int index) {
-    final title = task['title'] ?? 'Không có tiêu đề';
-    final description = task['description'] ?? 'Không có mô tả';
-    final status = task['status'] ?? 'Chưa bắt đầu';
-    final assignedTo = task['assignedTo'] ?? 'Chưa giao';
-    final dueDate = task['dueDate'] ?? 'Chưa có';
+  Widget _buildTaskCard(TaskModel task, int index) {
+    final title = task.title;
+    final description = task.description;
+    final status = task.status.displayName;
+    final assignedTo = task.assignees.first; // NOTE: updated to list
+    final dueDate = task.dueDate;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -358,7 +368,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      assignedTo,
+                      assignedTo.toString(),
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade600,
@@ -374,7 +384,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      dueDate,
+                      dueDate.toString(),
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade600,

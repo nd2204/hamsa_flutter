@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hamsa_flutter/models/task/task.dart';
 
 class AddTaskView extends StatefulWidget {
-
-  final Map<String, dynamic>? taskToEdit;
+  final TaskModel? taskToEdit;
   final int? taskIndex; // Index của task trong list
 
   const AddTaskView({super.key, this.taskToEdit, this.taskIndex});
@@ -42,12 +42,12 @@ class _AddTaskViewState extends State<AddTaskView> {
     super.initState();
     // THÊM: Nếu edit mode, điền dữ liệu cũ vào form
     if (isEditMode) {
-      titleController.text = widget.taskToEdit!['title'] ?? '';
-      descController.text = widget.taskToEdit!['description'] ?? '';
-      dateController.text = widget.taskToEdit!['dueDate'] ?? '';
-      selectedStatus = widget.taskToEdit!['status'] ?? 'Chưa bắt đầu';
-      selectedUser = widget.taskToEdit!['assignedTo'] ?? 'Chọn người thực hiện';
-      repeatTask = widget.taskToEdit!['repeat'] ?? false;
+      titleController.text = widget.taskToEdit!.title;
+      descController.text = widget.taskToEdit!.description;
+      dateController.text = widget.taskToEdit!.dueDate.toString();
+      selectedStatus = widget.taskToEdit!.status.displayName;
+      selectedUser = widget.taskToEdit!.assignees.first.value;
+      repeatTask = false;
     }
   }
 
