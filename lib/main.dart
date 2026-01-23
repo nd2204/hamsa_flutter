@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/routes.dart';
+import 'package:hamsa_flutter/viewmodels/home_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'di/app_dependencies.dart';
@@ -31,6 +32,9 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) =>
               ProfileViewModel(getIt<IAuthService>(), getIt<IUserRepository>()),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => HomeViewModel(getIt<IAuthService>()),
         ),
       ],
       child: const MainApp(),
