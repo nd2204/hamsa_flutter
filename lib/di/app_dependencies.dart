@@ -7,6 +7,8 @@ import 'package:hamsa_flutter/repositories/task_repo.dart';
 import 'package:hamsa_flutter/repositories/user_repo.dart';
 import 'package:hamsa_flutter/services/firebase_auth_service.dart';
 import 'package:hamsa_flutter/services/auth_service.dart';
+import 'package:hamsa_flutter/services/task_service.dart';
+import 'package:hamsa_flutter/services/task_service_impl.dart';
 
 final getIt = GetIt.instance;
 
@@ -23,5 +25,9 @@ void setupDependencies() {
 
   getIt.registerLazySingleton<ITaskRepository>(
     () => FirestoreTaskRepository(FirebaseFirestore.instance),
+  );
+
+  getIt.registerLazySingleton<ITaskService>(
+    () => TaskServiceImpl(getIt.get<ITaskRepository>()),
   );
 }

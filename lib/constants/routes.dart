@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hamsa_flutter/views/add_task_view.dart';
+import 'package:hamsa_flutter/views/task_view.dart';
 import 'package:hamsa_flutter/views/home_view.dart';
 import 'package:hamsa_flutter/views/login_view.dart';
 import 'package:hamsa_flutter/views/profile_view.dart';
@@ -14,7 +14,7 @@ final _routes = <String, Widget Function()>{
   AppRoute.login.name: () => const LoginView(),
   AppRoute.signup.name: () => const SignUpView(),
   AppRoute.home.name: () => const HomeView(),
-  AppRoute.addTask.name: () => const AddTaskView(),
+  AppRoute.task.name: () => const TaskView(),
   AppRoute.userProfile.name: () => const ProfileView(),
 };
 
@@ -22,7 +22,7 @@ enum AppRoute {
   login("/login"),
   signup("/signup"),
   home("/home"),
-  addTask("/taskAdd"),
+  task("/task"),
   userProfile("/me");
 
   final String name;

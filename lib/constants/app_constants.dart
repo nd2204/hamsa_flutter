@@ -77,4 +77,7 @@ class AppStrings {
   static const taskDeleted = "Đã xóa task";
   static const taskProgressTitle = "Tiến độ hoàn thành";
   static const noTask = "Không có task nào";
+
+  // etc
+  static const goBackTitle = "Quay lại";
 }
