@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hamsa_flutter/constants/app_constants.dart';
+import 'package:hamsa_flutter/viewmodels/home_viewmodel.dart';
 import 'package:hamsa_flutter/views/add_task_view.dart';
-import 'package:hamsa_flutter/views/profile_view.dart';
+import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -10,74 +12,79 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  String selectedStatus = "Tất cả";
-  String selectedSort = "Mới nhất";
-
   List<Map<String, dynamic>> tasks = [];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: Row(
-          children: const [
-            Icon(Icons.check_box_outlined, color: Color(0xFF5B4BFF)),
-            SizedBox(width: 8),
-            Text('Task Manager', style: TextStyle(color: Colors.black)),
-          ],
-        ),
-        actions: [
-          InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileView()),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              child: Row(
-                children: const [
-                  Icon(Icons.person, color: Colors.grey),
-                  SizedBox(width: 8),
-                  Text('Do Sy Chien', style: TextStyle(color: Colors.black)),
-                ],
+    return Consumer<HomeViewModel>(
+      builder: (context, viewModel, child) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFF6F8FC),
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 1,
+            title: Row(
+              children: const [
+                Icon(Icons.check_box_outlined, color: Color(0xFF5B4BFF)),
+                SizedBox(width: 8),
+                Text('Task Manager', style: TextStyle(color: Colors.black)),
+              ],
+            ),
+            actions: [
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: viewModel.navigateToAddTaskCallback(context),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.person, color: Colors.grey),
+                      const SizedBox(width: 8),
+                      Text(
+                        viewModel.userDisplayName,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 24),
+              TextButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.logout, color: Colors.grey),
+                label: const Text(
+                  "Logout",
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              const SizedBox(width: 16),
+            ],
+          ),
+          body: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1100),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProgressCard(),
+                    const SizedBox(height: 24),
+                    _buildHeaderRow(),
+                    const SizedBox(height: 16),
+                    _buildFilterRow(),
+                    const SizedBox(height: 24),
+                    _buildTasksList(),
+                  ],
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 24),
-          TextButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.logout, color: Colors.grey),
-            label: const Text("Logout", style: TextStyle(color: Colors.grey)),
-          ),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1100),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildProgressCard(),
-                const SizedBox(height: 24),
-                _buildHeaderRow(),
-                const SizedBox(height: 16),
-                _buildFilterRow(),
-                const SizedBox(height: 24),
-                _buildTasksList(),
-              ],
-            ),
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -207,7 +214,7 @@ class _HomeViewState extends State<HomeView> {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: selectedStatus,
+                value: AppStrings.selectedStatus,
                 icon: const Icon(Icons.keyboard_arrow_down),
                 borderRadius: BorderRadius.circular(12),
                 dropdownColor: Colors.grey.shade200,
@@ -227,9 +234,9 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ],
                 onChanged: (value) {
-                  setState(() {
-                    selectedStatus = value!;
-                  });
+                  // setState(() {
+                  //   selectedStatus = value!;
+                  // });
                 },
               ),
             ),
@@ -249,7 +256,7 @@ class _HomeViewState extends State<HomeView> {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: selectedSort,
+                value: AppStrings.selectedSort,
                 icon: const Icon(Icons.keyboard_arrow_down),
                 borderRadius: BorderRadius.circular(12),
                 dropdownColor: Colors.grey.shade200,
@@ -259,9 +266,9 @@ class _HomeViewState extends State<HomeView> {
                   DropdownMenuItem(value: "Cũ nhất", child: Text("Cũ nhất")),
                 ],
                 onChanged: (value) {
-                  setState(() {
-                    selectedSort = value!;
-                  });
+                  // setState(() {
+                  //   selectedSort = value!;
+                  // });
                 },
               ),
             ),
@@ -274,9 +281,9 @@ class _HomeViewState extends State<HomeView> {
   Widget _buildTasksList() {
     // THÊM: Lọc tasks theo status
     List<Map<String, dynamic>> filteredTasks = tasks;
-    if (selectedStatus != "Tất cả") {
+    if (AppStrings.selectedStatus != "Tất cả") {
       filteredTasks = tasks
-          .where((t) => t['status'] == selectedStatus)
+          .where((t) => t['status'] == AppStrings.selectedStatus)
           .toList();
     }
 

@@ -4,12 +4,12 @@ class AppConstants {
   // Colors
   static const primaryColor = Color(0xFF5B4BFF);
   static const backgroundColor = Color(0xFFF3F6FF);
-  
+
   // Dimensions
   static const double maxFormWidth = 420.0;
   static const double defaultPadding = 16.0;
   static const double defaultBorderRadius = 12.0;
-  
+
   // Validation
   static const int minPasswordLength = 6;
 }
@@ -20,33 +20,33 @@ class AppStrings {
   static const loginSubtitle = 'Chào mừng trở lại!';
   static const signUpTitle = 'Đăng ký';
   static const signUpSubtitle = 'Tạo tài khoản mới';
-  
+
   // Form labels
   static const emailLabel = 'Email';
   static const passwordLabel = 'Mật khẩu';
   static const displayNameLabel = 'Tên hiển thị';
   static const confirmPasswordLabel = 'Xác nhận mật khẩu';
-  
+
   // Form hints
   static const displayNameHint = 'Nhập họ và tên';
   static const emailHint = 'your.email@example.com';
   static const passwordHint = '••••••••';
-  
+
   // Buttons
   static const loginButton = 'Đăng nhập';
   static const signUpButton = 'Đăng ký';
-  
+
   // Messages
   static const loginSuccess = 'Đăng nhập thành công!';
   static const signUpSuccess = 'Đăng ký thành công!';
   static const fillAllFields = 'Vui lòng nhập đầy đủ thông tin';
-  
+
   // Navigation
   static const noAccount = 'Chưa có tài khoản? ';
   static const hasAccount = 'Đã có tài khoản? ';
   static const signUpNow = 'Đăng ký ngay';
   static const loginNow = 'Đăng nhập';
-  
+
   // Profile
   static const appTitle = 'Task Manager';
   static const defaultUserName = 'User';
@@ -69,4 +69,8 @@ class AppStrings {
   static const signOutConfirmTitle = 'Xác nhận đăng xuất';
   static const signOutConfirmMessage = 'Bạn có chắc chắn muốn đăng xuất?';
   static const signOutButton = 'Đăng xuất';
+
+  // Home
+  static const selectedStatus = "Tất cả";
+  static const selectedSort = "Mới nhất";
 }
