@@ -15,6 +15,13 @@ class _HomeViewState extends State<HomeView> {
 
   List<Map<String, dynamic>> tasks = [];
 
+  final List<String> filteredStatuses = [
+    "Tất cả",
+    "Chưa bắt đầu",
+    "Đang thực hiện",
+    "Hoàn thành",
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -332,6 +339,7 @@ class _HomeViewState extends State<HomeView> {
     final status = task['status'] ?? 'Chưa bắt đầu';
     final assignedTo = task['assignedTo'] ?? 'Chưa giao';
     final dueDate = task['dueDate'] ?? 'Chưa có';
+    final frequency = task['frequency'] ?? 'Một lần';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -397,6 +405,39 @@ class _HomeViewState extends State<HomeView> {
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    // Thêm frequency info
+                    // Thêm frequency info
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 159, 133, 172),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.repeat_on_outlined,
+                            size: 16,
+                            color: Colors.white, // 🆕 Icon màu trắng
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            frequency,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.white, // 🆕 Text màu trắng
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 12),

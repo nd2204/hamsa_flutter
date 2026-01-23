@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AddTaskView extends StatefulWidget {
-
   final Map<String, dynamic>? taskToEdit;
   final int? taskIndex; // Index của task trong list
 
@@ -48,6 +47,9 @@ class _AddTaskViewState extends State<AddTaskView> {
       selectedStatus = widget.taskToEdit!['status'] ?? 'Chưa bắt đầu';
       selectedUser = widget.taskToEdit!['assignedTo'] ?? 'Chọn người thực hiện';
       repeatTask = widget.taskToEdit!['repeat'] ?? false;
+      if (repeatTask && widget.taskToEdit!['frequency'] != null) {
+        repeatCycle = widget.taskToEdit!['frequency'];
+      }
     }
   }
 
@@ -272,6 +274,8 @@ class _AddTaskViewState extends State<AddTaskView> {
                       return;
                     }
 
+                    final frequency = repeatTask ? repeatCycle : "Một lần";
+
                     // Tạo task object
                     final taskData = {
                       'title': titleController.text.trim(),
@@ -282,6 +286,7 @@ class _AddTaskViewState extends State<AddTaskView> {
                           ? 'Chưa có'
                           : dateController.text,
                       'repeat': repeatTask,
+                      'frequency': frequency,
                     };
 
                     // THÊM: Return với thông tin edit
