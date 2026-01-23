@@ -272,6 +272,8 @@ class _AddTaskViewState extends State<AddTaskView> {
                       return;
                     }
 
+                    final frequency = repeatTask ? repeatCycle : "Một lần";
+
                     // Tạo task object
                     final taskData = {
                       'title': titleController.text.trim(),
@@ -282,6 +284,7 @@ class _AddTaskViewState extends State<AddTaskView> {
                           ? 'Chưa có'
                           : dateController.text,
                       'repeat': repeatTask,
+                      'frequency': frequency,
                     };
 
                     // THÊM: Return với thông tin edit
