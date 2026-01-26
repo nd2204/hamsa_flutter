@@ -14,7 +14,7 @@ class TaskListValueNotifier extends ValueNotifier<List<TaskModel>> {
   TaskListValueNotifier(super.value, this.taskRepository);
 
   Stream<List<TaskModel>> watchTasksByStatus({TaskStatus? status}) {
-    return taskRepository.watch(status: status);
+    return taskRepository.watchAvailable(status: status);
   }
 }
 
