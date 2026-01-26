@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/app_constants.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/viewmodels/home_viewmodel.dart';
-import 'package:hamsa_flutter/views/add_task_view.dart';
+import 'package:hamsa_flutter/views/task_view.dart';
 import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
@@ -122,7 +122,7 @@ class _HomeViewState extends State<HomeView> {
           onPressed: () async {
             final result = await Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AddTaskView()),
+              MaterialPageRoute(builder: (context) => const TaskView()),
             );
 
             if (result != null) {
@@ -245,42 +245,6 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildTasksList(HomeViewModel viewModel) {
-    // THÊM: Lọc tasks theo status
-    List<Map<String, dynamic>> filteredTasks = tasks;
-    if (AppStrings.selectedStatus != "Tất cả") {
-      filteredTasks = tasks
-          .where((t) => t['status'] == AppStrings.selectedStatus)
-          .toList();
-    }
-
-    // Nếu không có task nào sau khi lọc
-    if (filteredTasks.isEmpty) {
-      return Expanded(
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
-          ),
-          child: const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
-                SizedBox(height: 16),
-                Text(
-                  AppStrings.noTask,
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Nếu có tasks, hiển thị danh sách
     return Expanded(
       child: Container(
         decoration: BoxDecoration(
@@ -295,6 +259,41 @@ class _HomeViewState extends State<HomeView> {
               return CircularProgressIndicator();
             }
             final data = asyncSnapshot.data!;
+
+            // Display no task
+            if (data.isEmpty) {
+              return Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black12, blurRadius: 10),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.inbox_outlined,
+                          size: 64,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          AppStrings.noTask,
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            // Nếu có tasks, hiển thị danh sách
             return ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: data.length,
@@ -312,7 +311,7 @@ class _HomeViewState extends State<HomeView> {
     final title = task.title;
     final description = task.description;
     final status = task.status.displayName;
-    final assignedTo = task.assignees.first; // NOTE: updated to list
+    final assignedTo = task.assignees.firstOrNull; // NOTE: updated to list
     final dueDate = task.dueDate;
 
     return Container(
@@ -404,7 +403,8 @@ class _HomeViewState extends State<HomeView> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            frequency,
+                            "",
+                            // frequency,
                             style: const TextStyle(
                               fontSize: 13,
                               color: Colors.white, // 🆕 Text màu trắng
@@ -450,10 +450,7 @@ class _HomeViewState extends State<HomeView> {
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AddTaskView(
-                        taskToEdit: task, // Truyền task hiện tại
-                        taskIndex: index, // Truyền vị trí trong list
-                      ),
+                      builder: (context) => TaskView(taskId: task.id),
                     ),
                   );
 

@@ -35,4 +35,10 @@ class TaskServiceImpl extends ITaskService {
   Future<void> markDeleteTask(TaskId id) async {
     await _repo.markDeleted(id);
   }
+
+  @override
+  Future<void> saveTask(TaskModel task) async {
+    // todo add validation
+    await _repo.save(task);
+  }
 }

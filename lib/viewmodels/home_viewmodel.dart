@@ -40,7 +40,7 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   VoidCallback? navigateToAddTaskCallback(BuildContext context) {
-    return () => Navigator.pushNamed(context, AppRoute.addTask.name);
+    return () => Navigator.pushNamed(context, AppRoute.task.name);
   }
 
   Future<void> deleteTask(TaskId taskId) async {
