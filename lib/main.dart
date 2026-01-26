@@ -37,7 +37,8 @@ void main() async {
               ProfileViewModel(getIt<IAuthService>(), getIt<IUserRepository>()),
         ),
         ChangeNotifierProvider(
-          create: (_) => TaskViewModel(getIt<ITaskService>()),
+          create: (_) =>
+              TaskViewModel(getIt<ITaskService>(), getIt<ITaskRepository>()),
         ),
         ChangeNotifierProvider(
           create: (_) =>

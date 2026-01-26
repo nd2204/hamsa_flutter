@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hamsa_flutter/constants/app_constants.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
+import 'package:hamsa_flutter/models/task/task_status.dart';
 import 'package:hamsa_flutter/viewmodels/task_viewmodel.dart';
 import 'package:hamsa_flutter/views/widgets/back_button.dart';
 import 'package:provider/provider.dart';
@@ -8,14 +10,11 @@ class TaskView extends StatelessWidget {
   final TaskId? taskId;
   const TaskView({super.key, this.taskId});
 
-  bool get isEditMode => taskId != null;
-
   @override
   Widget build(BuildContext context) {
     return Consumer<TaskViewModel>(
       builder: (context, viewModel, child) {
         return Scaffold(
-          backgroundColor: const Color(0xFFF6F8FC),
           body: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 800),
@@ -42,7 +41,9 @@ class TaskView extends StatelessWidget {
                             children: [
                               // THAY ĐỔI: Title khác nhau cho edit/create
                               Text(
-                                isEditMode ? "Chỉnh Sửa Task" : "Thêm Task Mới",
+                                viewModel.isEditing
+                                    ? "Chỉnh Sửa Task"
+                                    : "Thêm Task Mới",
                                 style: const TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -51,7 +52,7 @@ class TaskView extends StatelessWidget {
 
                               const SizedBox(height: 24),
 
-                              _buildLabel("Tiêu đề *"),
+                              _TaskViewFieldLabel("Tiêu đề *"),
                               const SizedBox(height: 6),
                               _TaskTextField(
                                 controller: viewModel.titleController,
@@ -60,7 +61,7 @@ class TaskView extends StatelessWidget {
 
                               const SizedBox(height: 20),
 
-                              _buildLabel("Mô tả *"),
+                              _TaskViewFieldLabel("Mô tả *"),
                               const SizedBox(height: 6),
                               _TaskTextField(
                                 controller: viewModel.descController,
@@ -72,46 +73,30 @@ class TaskView extends StatelessWidget {
 
                               Row(
                                 children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        _buildLabel("Trạng thái"),
-                                        const SizedBox(height: 6),
-                                        _TaskViewDropDown(
-                                          value: viewModel.selectedStatus,
-                                          items: [],
-                                          onChanged: viewModel.setStatus,
-                                        ),
-                                      ],
-                                    ),
+                                  _TaskViewDropDownField(
+                                    value: viewModel.selectedStatus,
+                                    items: TaskStatus.values,
+                                    onChanged: viewModel.setStatus,
+                                    label: "Trạng thái",
                                   ),
                                   const SizedBox(width: 24),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        _buildLabel("Giao cho"),
-                                        const SizedBox(height: 6),
-                                        _TaskViewDropDown(
-                                          value: viewModel
-                                              .assignedUsers
-                                              .first
-                                              .value,
-                                          items: [], // TODO: add user
-                                          onChanged: viewModel.assignUser,
-                                        ),
-                                      ],
-                                    ),
+                                  _TaskViewDropDownField(
+                                    value:
+                                        viewModel
+                                            .assignedUsers
+                                            .firstOrNull
+                                            ?.value ??
+                                        "what",
+                                    items: <String>["what"], // TODO: add user
+                                    onChanged: viewModel.assignUser,
+                                    label: "Giao cho",
                                   ),
                                 ],
                               ),
 
                               const SizedBox(height: 24),
 
-                              _buildLabel("Hạn hoàn thành"),
+                              _TaskViewFieldLabel("Hạn hoàn thành"),
                               const SizedBox(height: 6),
                               TextField(
                                 controller: viewModel.dateController,
@@ -133,29 +118,17 @@ class TaskView extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      children: [
-                                        Checkbox(
-                                          value: viewModel.repeatTask,
-                                          onChanged: viewModel.setRepeatTask,
+                                    _TaskViewRepeatCheckbox(viewModel),
+                                    if (viewModel.repeatTask)
+                                      Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: _TaskViewDropDownField(
+                                          value: viewModel.repeatCycle,
+                                          items: TaskViewModel.repeatCycles,
+                                          onChanged: viewModel.setRepeatCycle,
+                                          label: "Chu kỳ lặp lại",
                                         ),
-                                        const SizedBox(width: 8),
-                                        const Text(
-                                          "Lặp lại task",
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                      ],
-                                    ),
-                                    if (viewModel.repeatTask) ...[
-                                      const SizedBox(height: 12),
-                                      _buildLabel("Chu kỳ lặp lại"),
-                                      const SizedBox(height: 6),
-                                      _TaskViewDropDown(
-                                        value: viewModel.repeatCycle,
-                                        items: TaskViewModel.repeatCycles,
-                                        onChanged: viewModel.setRepeatCycle,
                                       ),
-                                    ],
                                   ],
                                 ),
                               ),
@@ -164,34 +137,19 @@ class TaskView extends StatelessWidget {
 
                               Row(
                                 children: [
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF5B4BFF),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 24,
-                                        vertical: 14,
-                                      ),
-                                    ),
-                                    onPressed: () {},
-                                    icon: const Icon(
-                                      Icons.save,
-                                      color: Colors.white,
-                                    ),
-                                    // THAY ĐỔI: Label button
-                                    label: Text(
-                                      isEditMode ? "Lưu Thay Đổi" : "Tạo Task",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                  _TaskViewPrimaryButton(
+                                    onPressed: viewModel.isEditing
+                                        ? viewModel.saveTask
+                                        : () => viewModel.createTask(context),
+                                    label: viewModel.isEditing
+                                        ? AppStrings.saveTaskButtonTitle
+                                        : AppStrings.createTaskButtonTitle,
+                                    icon: Icons.save,
                                   ),
                                   const SizedBox(width: 20),
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),
-                                    child: const Text("Hủy"),
+                                    child: const Text(AppStrings.cancelButton),
                                   ),
                                 ],
                               ),
@@ -209,8 +167,33 @@ class TaskView extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget _buildLabel(String text) {
+class _TaskViewRepeatCheckbox extends StatelessWidget {
+  final TaskViewModel viewModel;
+  const _TaskViewRepeatCheckbox(this.viewModel);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Checkbox(
+          value: viewModel.repeatTask,
+          onChanged: viewModel.setRepeatTask,
+        ),
+        const SizedBox(width: 8),
+        const Text("Lặp lại task", style: TextStyle(fontSize: 16)),
+      ],
+    );
+  }
+}
+
+class _TaskViewFieldLabel extends StatelessWidget {
+  final String text;
+  const _TaskViewFieldLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
     if (text.endsWith('*')) {
       final mainText = text.substring(0, text.length - 1);
       return Text.rich(
@@ -229,6 +212,7 @@ class TaskView extends StatelessWidget {
         ),
       );
     }
+
     return Text(
       text,
       style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black),
@@ -236,35 +220,76 @@ class TaskView extends StatelessWidget {
   }
 }
 
-class _TaskViewDropDown extends StatelessWidget {
-  final String value;
-  final List<String> items;
-  final ValueChanged<String?> onChanged;
+class _TaskViewPrimaryButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  final String label;
+  final IconData icon;
 
-  const _TaskViewDropDown({
+  const _TaskViewPrimaryButton({
+    required this.onPressed,
+    required this.label,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF5B4BFF),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+      ),
+      onPressed: onPressed,
+      icon: Icon(icon, color: Colors.white),
+      // THAY ĐỔI: Label button
+      label: Text(label, style: const TextStyle(color: Colors.white)),
+    );
+  }
+}
+
+class _TaskViewDropDownField<T> extends StatelessWidget {
+  final T value;
+  final List<T> items;
+  final ValueChanged<T?> onChanged;
+  final String label;
+
+  const _TaskViewDropDownField({
     required this.value,
+    required this.label,
     required this.items,
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade400),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: value,
-          icon: const Icon(Icons.keyboard_arrow_down),
-          items: items.map((item) {
-            return DropdownMenuItem(value: item, child: Text(item));
-          }).toList(),
-          onChanged: onChanged,
-        ),
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _TaskViewFieldLabel(label),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade400),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<T>(
+                isExpanded: true,
+                value: value,
+                icon: const Icon(Icons.keyboard_arrow_down),
+                items: items.map((item) {
+                  return DropdownMenuItem(
+                    value: item,
+                    child: Text(item.toString()),
+                  );
+                }).toList(),
+                onChanged: onChanged,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:hamsa_flutter/models/task/task.dart';
+import 'package:hamsa_flutter/models/task/task_id.dart';
+import 'package:hamsa_flutter/models/task/task_status.dart';
 import 'package:hamsa_flutter/models/user/user_id.dart';
+import 'package:hamsa_flutter/repositories/task_repo.dart';
 import 'package:hamsa_flutter/services/task_service.dart';
 
 class TaskViewModel extends ChangeNotifier {
-  final ITaskService taskService;
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController descController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
-
   static const List<String> repeatCycles = [
     "Hàng ngày",
     "Hàng tuần",
@@ -15,12 +14,29 @@ class TaskViewModel extends ChangeNotifier {
     "Hàng năm",
   ];
 
-  String selectedStatus = "Chưa bắt đầu";
+  final ITaskService taskService;
+  final ITaskRepository taskRepo;
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController descController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
+  TaskModel? _loadedTask;
+
+  TaskStatus selectedStatus = TaskStatus.todo;
   List<UserId> assignedUsers = [];
   bool repeatTask = false;
   String repeatCycle = repeatCycles.first;
 
-  TaskViewModel(this.taskService);
+  TaskViewModel(this.taskService, this.taskRepo);
+
+  void loadTask(TaskId taskId) {
+    // TODO: handle error
+    taskRepo.findById(taskId).then((task) {
+      _loadedTask = task;
+      notifyListeners();
+    });
+  }
+
+  bool get isEditing => _loadedTask != null;
 
   @override
   void dispose() {
@@ -30,7 +46,7 @@ class TaskViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  void setStatus(String? value) {
+  void setStatus(TaskStatus? value) {
     selectedStatus = value!;
     notifyListeners();
   }
@@ -65,10 +81,17 @@ class TaskViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void saveTask() async {
+    if (_loadedTask == null) throw StateError('task should not be null');
+    await taskService.saveTask(_loadedTask!);
+  }
+
   void createTask(BuildContext context) async {
+    final titleSanitized = titleController.text.trim();
+    final descSanitized = titleController.text.trim();
+
     // Validate
-    if (titleController.text.trim().isEmpty ||
-        descController.text.trim().isEmpty) {
+    if (titleSanitized.isEmpty || descSanitized.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Vui lòng nhập đầy đủ thông tin'),
@@ -78,22 +101,13 @@ class TaskViewModel extends ChangeNotifier {
       return;
     }
 
-    // Tạo task object
-    final taskData = {
-      'title': titleController.text.trim(),
-      'description': descController.text.trim(),
-      'status': selectedStatus,
-      'assignedTo': assignedUsers.firstOrNull ?? [],
-      'dueDate': dateController.text.isEmpty ? 'Chưa có' : dateController.text,
-      'repeat': repeatTask,
-    };
-
     // THÊM: Return với thông tin edit
     Navigator.pop(context);
 
     await taskService.createTask(
       title: titleController.text,
       description: descController.text,
+      status: selectedStatus,
       // TODO: add due date
     );
   }
