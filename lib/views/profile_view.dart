@@ -42,6 +42,7 @@ class ProfileView extends StatelessWidget {
         return Scaffold(
           backgroundColor: const Color(0xFFF6F8FC),
           appBar: AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: Colors.white,
             elevation: 1,
             title: Row(
