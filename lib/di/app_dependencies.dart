@@ -9,6 +9,8 @@ import 'package:hamsa_flutter/services/firebase_auth_service.dart';
 import 'package:hamsa_flutter/services/auth_service.dart';
 import 'package:hamsa_flutter/services/task_service.dart';
 import 'package:hamsa_flutter/services/task_service_impl.dart';
+import 'package:hamsa_flutter/services/user_service.dart';
+import 'package:hamsa_flutter/services/user_service_impl.dart';
 
 final getIt = GetIt.instance;
 
@@ -29,5 +31,9 @@ void setupDependencies() {
 
   getIt.registerLazySingleton<ITaskService>(
     () => TaskServiceImpl(getIt.get<ITaskRepository>()),
+  );
+
+  getIt.registerLazySingleton<IUserService>(
+    () => UserServiceImpl(getIt<IUserRepository>()),
   );
 }
