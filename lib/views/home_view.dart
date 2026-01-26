@@ -308,7 +308,6 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-
   Widget _buildTaskCard(TaskModel task, int index) {
     final title = task.title;
     final description = task.description;
@@ -480,16 +479,20 @@ class _HomeViewState extends State<HomeView> {
                 icon: const Icon(Icons.delete_outline),
                 color: Colors.red,
                 iconSize: 20,
-                onPressed: () {
-                  setState(() {
-                    tasks.removeAt(index);
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(AppStrings.taskDeleted),
-                      backgroundColor: Colors.red,
-                    ),
+                onPressed: () async {
+                  final viewModel = Provider.of<HomeViewModel>(
+                    context,
+                    listen: false,
                   );
+                  await viewModel.deleteTask(task.id);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(AppStrings.taskDeleted),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
               ),
             ],
