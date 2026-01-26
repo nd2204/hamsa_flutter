@@ -403,7 +403,8 @@ class _HomeViewState extends State<HomeView> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            frequency,
+                            "",
+                            // frequency,
                             style: const TextStyle(
                               fontSize: 13,
                               color: Colors.white, // 🆕 Text màu trắng
