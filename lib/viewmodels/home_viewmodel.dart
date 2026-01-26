@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/app_constants.dart';
 import 'package:hamsa_flutter/constants/routes.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
+import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
 import 'package:hamsa_flutter/models/user/user.dart';
 import 'package:hamsa_flutter/repositories/task_repo.dart';
@@ -40,5 +41,9 @@ class HomeViewModel extends ChangeNotifier {
 
   VoidCallback? navigateToAddTaskCallback(BuildContext context) {
     return () => Navigator.pushNamed(context, AppRoute.addTask.name);
+  }
+
+  Future<void> deleteTask(TaskId taskId) async {
+    await taskNotifier.taskRepository.markDeleted(taskId);
   }
 }

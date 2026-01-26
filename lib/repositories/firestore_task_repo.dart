@@ -62,6 +62,15 @@ class FirestoreTaskRepository implements ITaskRepository {
   }
 
   @override
+  Future<List<TaskModel>> listAllAvailable() async {
+    final snapshot = await _firestore
+        .collection(collectionPath)
+        .where('deleted', isEqualTo: false)
+        .get();
+    return snapshot.docs.map((doc) => TaskMapper.fromFirestore(doc)).toList();
+  }
+
+  @override
   Future<void> save(TaskModel task) async {
     final doc = await _firestore
         .collection(collectionPath)
@@ -77,9 +86,25 @@ class FirestoreTaskRepository implements ITaskRepository {
   Stream<List<TaskModel>> watch({TaskStatus? status}) {
     final collection = _firestore.collection(collectionPath);
 
-    final query = status != null
+    final query = (status != null
         ? collection.where('status', isEqualTo: status.index)
-        : collection;
+        : collection);
+
+    return query.snapshots().map(
+      (snapshot) =>
+          snapshot.docs.map((doc) => TaskMapper.fromFirestore(doc)).toList(),
+    );
+  }
+
+  @override
+  Stream<List<TaskModel>> watchAvailable({TaskStatus? status}) {
+    final collection = _firestore.collection(collectionPath);
+
+    final query =
+        (status != null
+                ? collection.where('status', isEqualTo: status.index)
+                : collection)
+            .where('deleted', isEqualTo: false);
 
     return query.snapshots().map(
       (snapshot) =>
