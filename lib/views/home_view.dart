@@ -545,6 +545,7 @@ class _HomeAppBar extends AppBar {
 
   _HomeAppBar({required this.viewModel, required this.context})
     : super(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 1,
         title: Row(
