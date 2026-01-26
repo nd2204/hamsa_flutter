@@ -9,4 +9,7 @@ class UserId {
 
   @override
   int get hashCode => value.hashCode;
+
+  @override
+  String toString() => "UserId($value)";
 }

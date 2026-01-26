@@ -16,4 +16,16 @@ class AppUser {
     this.isDeleted = false,
     this.updatedAt,
   });
+
+  @override
+  String toString() {
+    return "AppUser("
+        "id=$id,"
+        "email=$email,"
+        "displayName=$displayName,"
+        "createdAt=$createdAt,"
+        "isDeleted=$isDeleted,"
+        "updatedAt=$updatedAt"
+        ")";
+  }
 }
