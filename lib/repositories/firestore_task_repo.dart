@@ -77,8 +77,8 @@ class FirestoreTaskRepository implements ITaskRepository {
   Stream<List<TaskModel>> watch({TaskStatus? status}) {
     final collection = _firestore.collection(collectionPath);
 
-    final query = status == null
-        ? collection.where('status', isEqualTo: status?.index)
+    final query = status != null
+        ? collection.where('status', isEqualTo: status.index)
         : collection;
 
     return query.snapshots().map(
