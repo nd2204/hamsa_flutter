@@ -13,13 +13,20 @@ class TaskListValueNotifier extends ValueNotifier<List<TaskModel>> {
 
   TaskListValueNotifier(super.value, this.taskRepository);
 
-  Stream<List<TaskModel>> watchTasksByStatus({TaskStatus? status}) {
-    return taskRepository.watchAvailable(status: status);
+  Stream<List<TaskModel>> watchTasksByStatus({
+    TaskStatus? status,
+    bool newestFirst = true,
+  }) {
+    return taskRepository.watchAvailable(
+      status: status,
+      newestFirst: newestFirst,
+    );
   }
 }
 
 class HomeViewModel extends ChangeNotifier {
   AppUser? _user;
+  bool _newestFirst = true; // State cho sắp xếp
 
   final IAuthService _authService;
   final TaskListValueNotifier taskNotifier;
@@ -31,6 +38,13 @@ class HomeViewModel extends ChangeNotifier {
       _user = user;
       notifyListeners();
     });
+  }
+
+  bool get newestFirst => _newestFirst;
+
+  void setSortOrder(bool newestFirst) {
+    _newestFirst = newestFirst;
+    notifyListeners(); 
   }
 
   String get userDisplayName => _user?.displayName ?? AppStrings.notAvailable;
