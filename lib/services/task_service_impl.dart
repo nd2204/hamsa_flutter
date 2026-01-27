@@ -3,11 +3,14 @@ import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
 import 'package:hamsa_flutter/repositories/task_repo.dart';
 import 'package:hamsa_flutter/services/task_service.dart';
+import 'package:hamsa_flutter/utils/injectable.dart';
+import 'package:injectable/injectable.dart';
 
+@LazySingleton(as: ITaskService)
 class TaskServiceImpl extends ITaskService {
   final ITaskRepository _repo;
 
-  TaskServiceImpl(this._repo);
+  TaskServiceImpl() : _repo = getIt<ITaskRepository>();
 
   @override
   Future<void> createTask({

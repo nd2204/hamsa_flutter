@@ -3,15 +3,17 @@ import 'package:hamsa_flutter/models/user/user.dart';
 import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/services/auth_service.dart';
 import 'package:hamsa_flutter/repositories/user_repo.dart';
+import 'package:hamsa_flutter/utils/injectable.dart';
+import 'package:injectable/injectable.dart';
 
+@LazySingleton(as: IAuthService)
 class FirebaseAuthService implements IAuthService {
   final FirebaseAuth _firebaseAuth;
   final IUserRepository _userRepository;
-  const FirebaseAuthService(
-    FirebaseAuth instance,
-    IUserRepository userRepository,
-  ) : _firebaseAuth = instance,
-      _userRepository = userRepository;
+
+  FirebaseAuthService()
+    : _firebaseAuth = FirebaseAuth.instance,
+      _userRepository = getIt<IUserRepository>();
 
   /// Stream of the current user
   @override
