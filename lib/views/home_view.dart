@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/app_constants.dart';
+import 'package:hamsa_flutter/constants/routes.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/viewmodels/home_viewmodel.dart';
 import 'package:hamsa_flutter/views/task_view.dart';
@@ -624,7 +625,33 @@ class _HomeAppBar extends AppBar {
           ),
           const SizedBox(width: 24),
           TextButton.icon(
-            onPressed: () {},
+            onPressed: () async {
+              final confirmed = await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text(AppStrings.signOutConfirmTitle),
+                  content: const Text(AppStrings.signOutConfirmMessage),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text(AppStrings.cancelButton),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text(AppStrings.signOutButton),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true) {
+                await viewModel.signOut();
+                if (context.mounted) {
+                  Navigator.of(
+                    context,
+                  ).pushReplacementNamed(AppRoute.login.name);
+                }
+              }
+            },
             icon: const Icon(Icons.logout, color: Colors.grey),
             label: const Text(
               AppStrings.logoutButtonTitle,

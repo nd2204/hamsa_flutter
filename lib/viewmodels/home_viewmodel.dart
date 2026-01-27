@@ -44,7 +44,7 @@ class HomeViewModel extends ChangeNotifier {
 
   void setSortOrder(bool newestFirst) {
     _newestFirst = newestFirst;
-    notifyListeners(); 
+    notifyListeners();
   }
 
   String get userDisplayName => _user?.displayName ?? AppStrings.notAvailable;
@@ -59,5 +59,9 @@ class HomeViewModel extends ChangeNotifier {
 
   Future<void> deleteTask(TaskId taskId) async {
     await taskNotifier.taskRepository.markDeleted(taskId);
+  }
+
+  Future<void> signOut() async {
+    await _authService.signOut();
   }
 }
