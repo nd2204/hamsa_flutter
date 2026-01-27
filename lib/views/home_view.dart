@@ -14,6 +14,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   List<Map<String, dynamic>> tasks = [];
+  String selectedSort = "Mới nhất"; // State cho sort
 
   final List<String> filteredStatuses = [
     "Tất cả",
@@ -60,7 +61,6 @@ class _HomeViewState extends State<HomeView> {
         .where((task) => task['status'] == 'Hoàn thành')
         .length;
     final progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
-    final percentage = (progress * 100).toInt();
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -157,90 +157,102 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildFilterRow() {
-    return Container(
-      height: 60,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.filter_alt_outlined),
-          const SizedBox(width: 8),
-          const Text("Trạng thái:"),
-          const SizedBox(width: 8),
-          // Dropdown for status filter
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade400),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: AppStrings.selectedStatus,
-                icon: const Icon(Icons.keyboard_arrow_down),
-                borderRadius: BorderRadius.circular(12),
-                dropdownColor: Colors.grey.shade200,
-                items: const [
-                  DropdownMenuItem(value: "Tất cả", child: Text("Tất cả")),
-                  DropdownMenuItem(
-                    value: "Chưa bắt đầu",
-                    child: Text("Chưa bắt đầu"),
-                  ),
-                  DropdownMenuItem(
-                    value: "Đang thực hiện",
-                    child: Text("Đang thực hiện"),
-                  ),
-                  DropdownMenuItem(
-                    value: "Hoàn thành",
-                    child: Text("Hoàn thành"),
-                  ),
-                ],
-                onChanged: (value) {
-                  // setState(() {
-                  //   selectedStatus = value!;
-                  // });
-                },
-              ),
-            ),
+    return Consumer<HomeViewModel>(
+      builder: (context, viewModel, child) {
+        return Container(
+          height: 60,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
           ),
-          const SizedBox(width: 20),
-          const Icon(Icons.sort),
-          const SizedBox(width: 8),
-          const Text("Sắp xếp: "),
-          const SizedBox(width: 8),
+          child: Row(
+            children: [
+              const Icon(Icons.filter_alt_outlined),
+              const SizedBox(width: 8),
+              const Text("Trạng thái:"),
+              const SizedBox(width: 8),
+              // Dropdown for status filter
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade400),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: AppStrings.selectedStatus,
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    borderRadius: BorderRadius.circular(12),
+                    dropdownColor: Colors.grey.shade200,
+                    items: const [
+                      DropdownMenuItem(value: "Tất cả", child: Text("Tất cả")),
+                      DropdownMenuItem(
+                        value: "Chưa bắt đầu",
+                        child: Text("Chưa bắt đầu"),
+                      ),
+                      DropdownMenuItem(
+                        value: "Đang thực hiện",
+                        child: Text("Đang thực hiện"),
+                      ),
+                      DropdownMenuItem(
+                        value: "Hoàn thành",
+                        child: Text("Hoàn thành"),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      // setState(() {
+                      //   selectedStatus = value!;
+                      // });
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(width: 20),
+              const Icon(Icons.sort),
+              const SizedBox(width: 8),
+              const Text("Sắp xếp: "),
+              const SizedBox(width: 8),
 
-          // dropdown for ...
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade400, width: 1.5),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: AppStrings.selectedSort,
-                icon: const Icon(Icons.keyboard_arrow_down),
-                borderRadius: BorderRadius.circular(12),
-                dropdownColor: Colors.grey.shade200,
-                itemHeight: 50,
-                items: const [
-                  DropdownMenuItem(value: "Mới nhất", child: Text("Mới nhất")),
-                  DropdownMenuItem(value: "Cũ nhất", child: Text("Cũ nhất")),
-                ],
-                onChanged: (value) {
-                  // setState(() {
-                  //   selectedSort = value!;
-                  // });
-                },
+              // Dropdown for sort
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400, width: 1.5),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: selectedSort,
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    borderRadius: BorderRadius.circular(12),
+                    dropdownColor: Colors.grey.shade200,
+                    itemHeight: 50,
+                    items: const [
+                      DropdownMenuItem(
+                        value: "Mới nhất",
+                        child: Text("Mới nhất"),
+                      ),
+                      DropdownMenuItem(
+                        value: "Cũ nhất",
+                        child: Text("Cũ nhất"),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedSort = value!;
+                      });
+                      // Cập nhật sort order trong viewModel
+                      viewModel.setSortOrder(value == "Mới nhất");
+                    },
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -252,53 +264,93 @@ class _HomeViewState extends State<HomeView> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
         ),
-        child: StreamBuilder(
-          stream: viewModel.taskNotifier.watchTasksByStatus(),
-          builder: (context, asyncSnapshot) {
-            if (!asyncSnapshot.hasData) {
-              return CircularProgressIndicator();
-            }
-            final data = asyncSnapshot.data!;
+        child: Consumer<HomeViewModel>(
+          builder: (context, vm, child) {
+            return StreamBuilder<List<TaskModel>>(
+              key: ValueKey(
+                vm.newestFirst,
+              ), // Key để tránh tạo stream mới mỗi lần rebuild
+              stream: vm.taskNotifier.watchTasksByStatus(
+                newestFirst: vm.newestFirst,
+              ),
+              builder: (context, asyncSnapshot) {
+                if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-            // Display no task
-            if (data.isEmpty) {
-              return Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black12, blurRadius: 10),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.inbox_outlined,
-                          size: 64,
-                          color: Colors.grey,
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          AppStrings.noTask,
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
+                if (asyncSnapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Colors.red,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Lỗi: ${asyncSnapshot.error}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.red,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                if (!asyncSnapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final data = asyncSnapshot.data!;
+
+                // Display no task
+                if (data.isEmpty) {
+                  return Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [
+                        BoxShadow(color: Colors.black12, blurRadius: 10),
                       ],
                     ),
-                  ),
-                ),
-              );
-            }
+                    child: const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.inbox_outlined,
+                            size: 64,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            AppStrings.noTask,
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
 
-            // Nếu có tasks, hiển thị danh sách
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                return _buildTaskCard(data[index], index);
+                // Nếu có tasks, hiển thị danh sách
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: data.length,
+                  itemBuilder: (context, index) {
+                    return _buildTaskCard(data[index], index);
+                  },
+                );
               },
             );
           },
