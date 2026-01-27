@@ -122,7 +122,8 @@ class FirestoreTaskRepository implements ITaskRepository {
 
     // Only use orderBy if newestFirst (descending) to use existing index
     // For oldestFirst (ascending), we'll sort in memory to avoid needing another index
-    if (newestFirst) {
+    final bool needsClientSideSort = status != null;
+    if (newestFirst && !needsClientSideSort) {
       query = query.orderBy('createdAt', descending: true);
     }
 
@@ -132,8 +133,11 @@ class FirestoreTaskRepository implements ITaskRepository {
           .toList();
 
       // If oldestFirst, sort in memory (ascending by createdAt)
-      if (!newestFirst) {
-        tasks.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      if (needsClientSideSort || !newestFirst) {
+        tasks.sort((a, b) {
+          final comparsion = a.createdAt.compareTo(b.createdAt);
+          return newestFirst ? -comparsion : comparsion;
+        });
       }
 
       return tasks;
