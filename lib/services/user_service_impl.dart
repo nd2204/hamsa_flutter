@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'package:get_it/get_it.dart';
 import 'package:hamsa_flutter/repositories/user_repo.dart';
 import 'package:hamsa_flutter/services/user_service.dart';
+import 'package:injectable/injectable.dart';
 
-class UserServiceImpl implements IUserService {
+@LazySingleton(as: IUserService)
+class UserServiceImpl implements IUserService, Disposable {
   final IUserRepository _repository;
 
   final _controller = StreamController<UserList>.broadcast();
@@ -35,7 +38,8 @@ class UserServiceImpl implements IUserService {
     }, onError: _controller.addError);
   }
 
-  void dispose() {
+  @override
+  FutureOr<dynamic> onDispose() {
     _subscription?.cancel();
     _controller.close();
   }

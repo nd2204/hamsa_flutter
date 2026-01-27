@@ -6,13 +6,14 @@ import 'package:hamsa_flutter/models/task/task_status.dart';
 import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/repositories/task_repo.dart';
 import 'package:hamsa_flutter/utils/errors.dart';
+import 'package:injectable/injectable.dart';
 
+@LazySingleton(as: ITaskRepository)
 class FirestoreTaskRepository implements ITaskRepository {
   final FirebaseFirestore _firestore;
   static const collectionPath = "tasks";
 
-  const FirestoreTaskRepository(FirebaseFirestore instance)
-    : _firestore = instance;
+  FirestoreTaskRepository() : _firestore = FirebaseFirestore.instance;
 
   @override
   Future<void> create(TaskModel task) async {

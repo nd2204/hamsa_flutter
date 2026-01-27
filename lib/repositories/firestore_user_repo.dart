@@ -3,6 +3,7 @@ import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/repositories/user_repo.dart';
 import 'package:hamsa_flutter/utils/errors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:injectable/injectable.dart';
 
 class UserFieldLabel {
   static const createdAt = 'createdAt';
@@ -47,12 +48,12 @@ class UserMapper {
   }
 }
 
+@LazySingleton(as: IUserRepository)
 class FirestoreUserRepository implements IUserRepository {
   final FirebaseFirestore _firestore;
   static const String collectionPath = 'users';
 
-  const FirestoreUserRepository(FirebaseFirestore instance)
-    : _firestore = instance;
+  FirestoreUserRepository() : _firestore = FirebaseFirestore.instance;
 
   /// Create a new user
   @override
