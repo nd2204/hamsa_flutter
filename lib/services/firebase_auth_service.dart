@@ -23,6 +23,10 @@ class FirebaseAuthService implements IAuthService {
 
       // Lấy user từ repository để có đầy đủ thông tin bao gồm isDeleted
       final appUser = await _userRepository.get(UserId(user.uid));
+
+      // FIX: When signing up,
+      // the service might not have added the user to the database
+      // and thus return the appUser = null
       if (appUser == null || appUser.isDeleted) {
         await _firebaseAuth.signOut();
         return null;
@@ -83,6 +87,7 @@ class FirebaseAuthService implements IAuthService {
         email: email,
         password: password,
       );
+
       final user = credential.user;
       if (user == null) {
         throw Exception('Failed to sign up with email and password');

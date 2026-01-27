@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/routes.dart';
 import 'package:hamsa_flutter/repositories/task_repo.dart';
 import 'package:hamsa_flutter/services/task_service.dart';
+import 'package:hamsa_flutter/states/auth_state.dart';
 import 'package:hamsa_flutter/utils/injectable.dart';
 import 'package:hamsa_flutter/viewmodels/home_viewmodel.dart';
 import 'package:hamsa_flutter/viewmodels/task_viewmodel.dart';
+import 'package:hamsa_flutter/views/home_view.dart';
+import 'package:hamsa_flutter/views/login_view.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
@@ -56,7 +59,6 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: AppRoute.login.name,
       onGenerateRoute: generateRoute,
       title: 'Hamsa Flutter',
       debugShowCheckedModeBanner: false,
@@ -65,7 +67,54 @@ class MainApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: AppConstants.primaryColor),
       ),
-      home: Scaffold(body: Center(child: Text('Hello, World!'))),
+      home: const AppRoot(),
+    );
+  }
+}
+
+class AppRoot extends StatelessWidget {
+  const AppRoot({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<AuthState>(
+      valueListenable: getIt<AuthStateNotifier>(),
+      builder: (context, auth, _) {
+        switch (auth.authStatus) {
+          case AuthStatus.loading:
+            return FullScreenLoading();
+          case AuthStatus.unauthenticated:
+            return const LoginView();
+          case AuthStatus.authenticated:
+            return const HomeView();
+          case AuthStatus.error:
+            throw auth.errorObj;
+        }
+      },
+    );
+  }
+}
+
+class FullScreenLoading extends StatelessWidget {
+  const FullScreenLoading({super.key, this.message});
+
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            if (message != null) ...[
+              const SizedBox(height: 16),
+              Text(message!, style: Theme.of(context).textTheme.bodyMedium),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

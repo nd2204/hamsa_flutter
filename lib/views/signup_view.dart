@@ -319,16 +319,14 @@ class SignUpView extends StatelessWidget {
     BuildContext context,
     SignUpViewModel viewModel,
   ) async {
-    final success = await viewModel.signUp();
-    if (success && context.mounted) {
+    // try sign up
+    if (await viewModel.signUp() && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(AppStrings.signUpSuccess),
           backgroundColor: Colors.green,
         ),
       );
-      // Navigate to login after successful signup
-      Navigator.pushReplacementNamed(context, AppRoute.login.name);
     }
   }
 }

@@ -9,17 +9,7 @@ class SignUpViewModel extends ChangeNotifier {
   final IAuthService _authService;
   StreamSubscription<AppUser?>? _authSubscription;
 
-  SignUpViewModel(this._authService) {
-    _initializeAuthListener();
-  }
-
-  // Initialize auth listener
-  void _initializeAuthListener() {
-    _authSubscription = _authService.authStateChanges.listen((user) {
-      _currentUser = user;
-      notifyListeners();
-    });
-  }
+  SignUpViewModel(this._authService);
 
   // Form controllers
   final TextEditingController displayNameController = TextEditingController();
@@ -29,15 +19,12 @@ class SignUpViewModel extends ChangeNotifier {
       TextEditingController();
 
   // State
-  AppUser? _currentUser;
   bool _isLoading = false;
   String? _errorMessage;
 
   // Getters
-  AppUser? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  bool get isAuthenticated => _currentUser != null;
 
   // Validation
   bool get isDisplayNameValid =>
@@ -103,13 +90,12 @@ class SignUpViewModel extends ChangeNotifier {
     _setError(null);
 
     try {
-      final user = await _authService.signUpWithEmailAndPassword(
+      await _authService.signUpWithEmailAndPassword(
         emailController.text.trim(),
         passwordController.text,
         displayNameController.text.trim(),
       );
 
-      _currentUser = user;
       _setLoading(false);
       return true;
     } catch (e) {

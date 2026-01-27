@@ -3,6 +3,8 @@ import 'package:hamsa_flutter/constants/app_constants.dart';
 import 'package:hamsa_flutter/constants/routes.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
+import 'package:hamsa_flutter/states/auth_state.dart';
+import 'package:hamsa_flutter/utils/injectable.dart';
 import 'package:hamsa_flutter/viewmodels/home_viewmodel.dart';
 import 'package:hamsa_flutter/views/task_view.dart';
 import 'package:provider/provider.dart';
@@ -58,22 +60,78 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildProgressCard() {
-  return Consumer<HomeViewModel>(
-    builder: (context, viewModel, child) {
-      return StreamBuilder<List<TaskModel>>(
-        stream: viewModel.taskNotifier.watchTasksByStatus(
-          status: null, // Lấy tất cả tasks để tính progress
-          newestFirst: true,
-        ),
-        builder: (context, snapshot) {
-          // Nếu chưa có dữ liệu, hiển thị loading hoặc 0
-          if (!snapshot.hasData) {
+    return Consumer<HomeViewModel>(
+      builder: (context, viewModel, child) {
+        return StreamBuilder<List<TaskModel>>(
+          stream: viewModel.taskNotifier.watchTasksByStatus(
+            status: null, // Lấy tất cả tasks để tính progress
+            newestFirst: true,
+          ),
+          builder: (context, snapshot) {
+            // Nếu chưa có dữ liệu, hiển thị loading hoặc 0
+            if (!snapshot.hasData) {
+              return Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black12, blurRadius: 10),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(AppStrings.taskProgressTitle),
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "0 / 0 tasks",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '0%',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF5B4BFF),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12),
+                    LinearProgressIndicator(
+                      value: 0.0,
+                      minHeight: 5,
+                      color: Color(0xFF5B4BFF),
+                      backgroundColor: Colors.grey,
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            final allTasks = snapshot.data!;
+            final totalTasks = allTasks.length;
+            final completedTasks = allTasks
+                .where((task) => task.status == TaskStatus.done)
+                .length;
+            final progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
+            final percentage = (progress * 100).toInt();
+
             return Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+                boxShadow: const [
+                  BoxShadow(color: Colors.black12, blurRadius: 10),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,11 +142,14 @@ class _HomeViewState extends State<HomeView> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "0 / 0 tasks",
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        "$completedTasks / $totalTasks tasks",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
-                        '0%',
+                        '$percentage%',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -99,7 +160,7 @@ class _HomeViewState extends State<HomeView> {
                   ),
                   SizedBox(height: 12),
                   LinearProgressIndicator(
-                    value: 0.0,
+                    value: progress,
                     minHeight: 5,
                     color: Color(0xFF5B4BFF),
                     backgroundColor: Colors.grey,
@@ -107,60 +168,11 @@ class _HomeViewState extends State<HomeView> {
                 ],
               ),
             );
-          }
-
-          final allTasks = snapshot.data!;
-          final totalTasks = allTasks.length;
-          final completedTasks = allTasks
-              .where((task) => task.status == TaskStatus.done)
-              .length;
-          final progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
-          final percentage = (progress * 100).toInt();
-
-          return Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(AppStrings.taskProgressTitle),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "$completedTasks / $totalTasks tasks",
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '$percentage%',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF5B4BFF),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 12),
-                LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 5,
-                  color: Color(0xFF5B4BFF),
-                  backgroundColor: Colors.grey,
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    },
-  );
-}
+          },
+        );
+      },
+    );
+  }
 
   Widget _buildHeaderRow() {
     return Row(
@@ -191,12 +203,14 @@ class _HomeViewState extends State<HomeView> {
                 setState(() {
                   tasks[result['index']] = result['task'];
                 });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Đã cập nhật task'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Đã cập nhật task'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
               } else {
                 // Trường hợp CREATE: Thêm task mới
                 setState(() {
@@ -261,9 +275,9 @@ class _HomeViewState extends State<HomeView> {
                       ),
                     ],
                     onChanged: (value) {
-                     if (value != null) {
-                      viewModel.setSelectedStatusFromString(value);
-                     }
+                      if (value != null) {
+                        viewModel.setSelectedStatusFromString(value);
+                      }
                     },
                   ),
                 ),
@@ -327,7 +341,7 @@ class _HomeViewState extends State<HomeView> {
           builder: (context, vm, child) {
             return StreamBuilder<List<TaskModel>>(
               key: ValueKey(
-               '${vm.newestFirst}-${vm.selectedStatus}',
+                '${vm.newestFirst}-${vm.selectedStatus}',
               ), // Key để tránh tạo stream mới mỗi lần rebuild
               stream: vm.taskNotifier.watchTasksByStatus(
                 newestFirst: vm.newestFirst,
@@ -665,26 +679,35 @@ class _HomeAppBar extends AppBar {
           ],
         ),
         actions: [
-          InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: viewModel.navigateToProfileCallback(context),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              child: Row(
-                children: [
-                  const Icon(Icons.person, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  Text(
-                    viewModel.userDisplayName,
-                    style: const TextStyle(color: Colors.black),
+          ValueListenableBuilder(
+            valueListenable: getIt<AuthStateNotifier>(),
+            builder: (context, value, child) {
+              return InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: viewModel.navigateToProfileCallback(context),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
                   ),
-                ],
-              ),
-            ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.person, color: Colors.grey),
+                      const SizedBox(width: 8),
+                      Text(
+                        value.currentUser?.displayName ?? "N/a",
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
           const SizedBox(width: 24),
           TextButton.icon(
             onPressed: () async {
+              final AuthStateNotifier notifier = getIt<AuthStateNotifier>();
               final confirmed = await showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
@@ -703,7 +726,7 @@ class _HomeAppBar extends AppBar {
                 ),
               );
               if (confirmed == true) {
-                await viewModel.signOut();
+                await notifier.signOut();
                 if (context.mounted) {
                   Navigator.of(
                     context,

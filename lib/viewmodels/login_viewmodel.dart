@@ -2,24 +2,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/models/user/user.dart';
 import 'package:hamsa_flutter/services/auth_service.dart';
+import 'package:hamsa_flutter/states/auth_state.dart';
+import 'package:hamsa_flutter/utils/injectable.dart';
 import 'package:hamsa_flutter/utils/validators.dart';
 import 'package:hamsa_flutter/utils/auth_error_mapper.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final IAuthService _authService;
+  final AuthStateNotifier _authStateNotifier = getIt.get<AuthStateNotifier>();
+
   StreamSubscription<AppUser?>? _authSubscription;
 
-  LoginViewModel(this._authService) {
-    _initializeAuthListener();
-  }
-
-  // Initialize auth listener
-  void _initializeAuthListener() {
-    _authSubscription = _authService.authStateChanges.listen((user) {
-      _currentUser = user;
-      notifyListeners();
-    });
-  }
+  LoginViewModel(this._authService);
 
   // Form controllers
   final TextEditingController emailController = TextEditingController();
@@ -40,7 +34,6 @@ class LoginViewModel extends ChangeNotifier {
   bool get isEmailValid => Validators.isValidEmail(emailController.text);
   bool get isPasswordValid =>
       Validators.isValidPassword(passwordController.text);
-
   bool get canSignIn => isEmailValid && isPasswordValid && !_isLoading;
 
   void clearError() {
@@ -58,42 +51,25 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> signIn() async {
+  Future<void> signIn() async {
     if (!canSignIn) {
       _setError('Vui lòng nhập đầy đủ thông tin');
-      return false;
+      return;
     }
 
     _setLoading(true);
     _setError(null);
 
     try {
-      final user = await _authService.signInWithEmailAndPassword(
+      // Auth state notifier listen to auth state
+      await _authService.signInWithEmailAndPassword(
         emailController.text.trim(),
         passwordController.text,
       );
-
-      _currentUser = user;
-      _setLoading(false);
-      return true;
     } catch (e) {
-      _setLoading(false);
       _setError(AuthErrorMapper.map(e));
-      return false;
-    }
-  }
-
-  Future<void> signOut() async {
-    _setLoading(true);
-
-    try {
-      await _authService.signOut();
-      _currentUser = null;
-      _setError(null);
+    } finally {
       _setLoading(false);
-    } catch (e) {
-      _setLoading(false);
-      _setError(AuthErrorMapper.map(e));
     }
   }
 

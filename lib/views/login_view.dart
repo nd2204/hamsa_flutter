@@ -40,7 +40,7 @@ class LoginView extends StatelessWidget {
                       const SizedBox(height: 30),
                       LoginSubmitButton(
                         viewModel: viewModel,
-                        onPressed: () => _handleSignIn(context, viewModel),
+                        onPressed: viewModel.signIn,
                       ),
                       const SizedBox(height: 24),
                       const LoginSignUpLink(),
@@ -53,21 +53,5 @@ class LoginView extends StatelessWidget {
         );
       },
     );
-  }
-
-  Future<void> _handleSignIn(
-    BuildContext context,
-    LoginViewModel viewModel,
-  ) async {
-    final success = await viewModel.signIn();
-    if (success && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(AppStrings.loginSuccess),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pushReplacementNamed(context, AppRoute.home.name);
-    }
   }
 }

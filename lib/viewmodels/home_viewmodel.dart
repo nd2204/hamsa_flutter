@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hamsa_flutter/constants/app_constants.dart';
 import 'package:hamsa_flutter/constants/routes.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
-import 'package:hamsa_flutter/models/user/user.dart';
 import 'package:hamsa_flutter/repositories/task_repo.dart';
 import 'package:hamsa_flutter/services/auth_service.dart';
 
@@ -25,21 +23,13 @@ class TaskListValueNotifier extends ValueNotifier<List<TaskModel>> {
 }
 
 class HomeViewModel extends ChangeNotifier {
-  AppUser? _user;
   bool _newestFirst = true; // State cho sắp xếp
   TaskStatus? _selectedStatus;
 
-  final IAuthService _authService;
   final TaskListValueNotifier taskNotifier;
 
   HomeViewModel(IAuthService authService, ITaskRepository taskRepo)
-    : _authService = authService,
-      taskNotifier = TaskListValueNotifier([], taskRepo) {
-    _authService.authStateChanges.listen((user) {
-      _user = user;
-      notifyListeners();
-    });
-  }
+    : taskNotifier = TaskListValueNotifier([], taskRepo);
 
   bool get newestFirst => _newestFirst;
   TaskStatus? get selectedStatus => _selectedStatus;
@@ -75,7 +65,7 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-   // Helper method để map TaskStatus sang string UI
+  // Helper method để map TaskStatus sang string UI
   String getSelectedStatusString() {
     if (_selectedStatus == null) return "Tất cả";
     switch (_selectedStatus!) {
@@ -88,8 +78,6 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  String get userDisplayName => _user?.displayName ?? AppStrings.notAvailable;
-
   VoidCallback? navigateToProfileCallback(BuildContext context) {
     return () => Navigator.pushNamed(context, AppRoute.userProfile.name);
   }
@@ -100,9 +88,5 @@ class HomeViewModel extends ChangeNotifier {
 
   Future<void> deleteTask(TaskId taskId) async {
     await taskNotifier.taskRepository.markDeleted(taskId);
-  }
-
-  Future<void> signOut() async {
-    await _authService.signOut();
   }
 }
