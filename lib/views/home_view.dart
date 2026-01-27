@@ -84,7 +84,7 @@ class _HomeViewState extends State<HomeView> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               Text(
-                '$percentage%',
+                '0%',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -575,12 +575,29 @@ class _HomeAppBar extends AppBar {
           const SizedBox(width: 24),
           TextButton.icon(
             onPressed: () async {
-              final loginViewModel = Provider.of<LoginViewModel>(
-                context,
-                listen: false,
+              final confirmted = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text(AppStrings.logoutButtonTitle),
+                  content: const Text(AppStrings.signOutConfirmMessage),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text(AppStrings.cancelButton),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text(AppStrings.signOutButton),
+                    ),
+                  ],
+                ),
               );
-              await loginViewModel.signOut();
-              Navigator.pushReplacementNamed(context, AppRoute.login.name);
+              if (confirmted == true && context.mounted) {
+                await viewModel.signOut();
+                if (context.mounted) {
+                  Navigator.pushReplacementNamed(context, AppRoute.login.name);
+                }
+              }
             },
             icon: const Icon(Icons.logout, color: Colors.grey),
             label: const Text(

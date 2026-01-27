@@ -46,4 +46,8 @@ class HomeViewModel extends ChangeNotifier {
   Future<void> deleteTask(TaskId taskId) async {
     await taskNotifier.taskRepository.markDeleted(taskId);
   }
+
+  Future<void> signOut() async {
+    await _authService.signOut();
+  }
 }
