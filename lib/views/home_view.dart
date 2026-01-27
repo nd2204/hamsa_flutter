@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/app_constants.dart';
 import 'package:hamsa_flutter/constants/routes.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
+import 'package:hamsa_flutter/models/task/task_status.dart';
 import 'package:hamsa_flutter/viewmodels/home_viewmodel.dart';
 import 'package:hamsa_flutter/views/task_view.dart';
 import 'package:provider/provider.dart';
@@ -57,52 +58,109 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildProgressCard() {
-    final totalTasks = tasks.length;
-    final completedTasks = tasks
-        .where((task) => task['status'] == 'Hoàn thành')
-        .length;
-    final progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
+  return Consumer<HomeViewModel>(
+    builder: (context, viewModel, child) {
+      return StreamBuilder<List<TaskModel>>(
+        stream: viewModel.taskNotifier.watchTasksByStatus(
+          status: null, // Lấy tất cả tasks để tính progress
+          newestFirst: true,
+        ),
+        builder: (context, snapshot) {
+          // Nếu chưa có dữ liệu, hiển thị loading hoặc 0
+          if (!snapshot.hasData) {
+            return Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(AppStrings.taskProgressTitle),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "0 / 0 tasks",
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '0%',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF5B4BFF),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12),
+                  LinearProgressIndicator(
+                    value: 0.0,
+                    minHeight: 5,
+                    color: Color(0xFF5B4BFF),
+                    backgroundColor: Colors.grey,
+                  ),
+                ],
+              ),
+            );
+          }
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(AppStrings.taskProgressTitle),
-          const SizedBox(height: 6),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "$completedTasks / $totalTasks tasks",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                '0%',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF5B4BFF),
+          final allTasks = snapshot.data!;
+          final totalTasks = allTasks.length;
+          final completedTasks = allTasks
+              .where((task) => task.status == TaskStatus.done)
+              .length;
+          final progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
+          final percentage = (progress * 100).toInt();
+
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(AppStrings.taskProgressTitle),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "$completedTasks / $totalTasks tasks",
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '$percentage%',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF5B4BFF),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12),
-          LinearProgressIndicator(
-            value: progress,
-            minHeight: 5,
-            color: Color(0xFF5B4BFF),
-            backgroundColor: Colors.grey,
-          ),
-        ],
-      ),
-    );
-  }
+                SizedBox(height: 12),
+                LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 5,
+                  color: Color(0xFF5B4BFF),
+                  backgroundColor: Colors.grey,
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
 
   Widget _buildHeaderRow() {
     return Row(
