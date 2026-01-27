@@ -1,3 +1,4 @@
+import 'package:hamsa_flutter/models/task/repeat_cycle.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
@@ -18,6 +19,7 @@ class TaskServiceImpl extends ITaskService {
     TaskStatus? status,
     String? description,
     DateTime? dueDate,
+    RepeatCycle? repeatCycle,
   }) async {
     // TODO: add validation
     final task = TaskModel(
@@ -26,6 +28,7 @@ class TaskServiceImpl extends ITaskService {
       description: description ?? '',
       status: status,
       createdAt: DateTime.now(),
+      repeatCycle: repeatCycle ?? RepeatCycle.none,
     );
 
     if (dueDate != null) {

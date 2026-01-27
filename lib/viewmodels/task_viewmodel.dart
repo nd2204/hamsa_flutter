@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hamsa_flutter/models/task/repeat_cycle.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
@@ -8,11 +9,20 @@ import 'package:hamsa_flutter/services/task_service.dart';
 
 class TaskViewModel extends ChangeNotifier {
   static const List<String> repeatCycles = [
+    "Không lặp lại",
     "Hàng ngày",
     "Hàng tuần",
     "Hàng tháng",
     "Hàng năm",
   ];
+
+  RepeatCycle selectedRepeatCycle = RepeatCycle.none;
+
+  void setRepeatCycle(String? value) {
+    if (value == null) return;
+    selectedRepeatCycle = RepeatCycle.fromString(value);
+    notifyListeners();
+  }
 
   final ITaskService taskService;
   final ITaskRepository taskRepo;
@@ -76,11 +86,6 @@ class TaskViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setRepeatCycle(String? value) {
-    repeatCycle = value!;
-    notifyListeners();
-  }
-
   void saveTask() async {
     if (_loadedTask == null) throw StateError('task should not be null');
     await taskService.saveTask(_loadedTask!);
@@ -88,7 +93,7 @@ class TaskViewModel extends ChangeNotifier {
 
   void createTask(BuildContext context) async {
     final titleSanitized = titleController.text.trim();
-    final descSanitized = titleController.text.trim();
+    final descSanitized = descController.text.trim();
 
     // Validate
     if (titleSanitized.isEmpty || descSanitized.trim().isEmpty) {
@@ -134,6 +139,7 @@ class TaskViewModel extends ChangeNotifier {
       description: descController.text,
       status: selectedStatus,
       dueDate: parseDueDate,
+      repeatCycle: selectedRepeatCycle,
     );
   }
 }

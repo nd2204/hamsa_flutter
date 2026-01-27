@@ -1,3 +1,4 @@
+import 'package:hamsa_flutter/models/task/repeat_cycle.dart';
 import 'package:hamsa_flutter/models/task/task_comment.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/user/user_id.dart';
@@ -25,6 +26,9 @@ class TaskModel {
   DateTime? _dueDate;
   DateTime? get dueDate => _dueDate;
 
+  RepeatCycle _repeatCycle;
+  RepeatCycle get repeatCycle => _repeatCycle;
+
   final List<TaskComment> _comments;
   List<TaskComment> get comments => _comments;
 
@@ -40,11 +44,17 @@ class TaskModel {
     Set<UserId>? assignees,
     List<TaskComment>? comments,
     DateTime? createdAt,
+    RepeatCycle? repeatCycle,
   }) : _assignees = assignees ?? {},
        _status = status ?? TaskStatus.todo,
        _comments = comments ?? [],
        _createdAt = createdAt,
-       _deleted = deleted ?? false;
+       _deleted = deleted ?? false,
+       _repeatCycle = repeatCycle ?? RepeatCycle.none;
+
+  void setRepeatCycle(RepeatCycle cycle) {
+    _repeatCycle = cycle;
+  }
 
   void markDeleted() {
     _deleted = true;
