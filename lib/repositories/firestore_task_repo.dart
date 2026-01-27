@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hamsa_flutter/models/task/repeat_cycle.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/models/task/task_comment.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
@@ -181,6 +182,7 @@ extension TaskMapper on TaskModel {
       'comments': comments.map((comment) => comment.toFirestore()).toList(),
       'deleted': deleted,
       "dueDate": dueDate != null ? Timestamp.fromDate(dueDate!) : null,
+      'repeatCycle': repeatCycle.index,
     };
   }
 
@@ -197,13 +199,15 @@ extension TaskMapper on TaskModel {
       createdAt: (data['createdAt'] as Timestamp).toDate(),
 
       // WARN: fetching comments can be expensive
-      // TODO: find another way to fetch comments separately
       comments: comments
           .map((comment) => TaskCommentMapper.fromFirestore(comment))
           .toList(),
 
       status: TaskStatus.fromInt(data['status']),
       deleted: data['deleted'],
+      repeatCycle: data['repeatCycle'] != null
+          ? RepeatCycle.fromInt(data['repeatCycle'])
+          : RepeatCycle.none,
     );
     if (data['dueDate'] != null) {
       task.setDueDate((data['dueDate'] as Timestamp).toDate());

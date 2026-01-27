@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/app_constants.dart';
 import 'package:hamsa_flutter/constants/routes.dart';
+import 'package:hamsa_flutter/models/task/repeat_cycle.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
 import 'package:hamsa_flutter/states/auth_state.dart';
@@ -509,37 +510,36 @@ class _HomeViewState extends State<HomeView> {
                     const SizedBox(width: 12),
 
                     // Thêm frequency info
-                    // Thêm frequency info
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 159, 133, 172),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.repeat_on_outlined,
-                            size: 16,
-                            color: Colors.white, // 🆕 Icon màu trắng
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            "",
-                            // frequency,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.white, // 🆕 Text màu trắng
-                              fontWeight: FontWeight.w500,
+                    if (task.repeatCycle != RepeatCycle.none)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 159, 133, 172),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.repeat_on_outlined,
+                              size: 16,
+                              color: Colors.white, // 🆕 Icon màu trắng
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 6),
+                            Text(
+                              task.repeatCycle.displayName,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.white, // 🆕 Text màu trắng
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                     const SizedBox(width: 12),
 
                     // Calendar icon
