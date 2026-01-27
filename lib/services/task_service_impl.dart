@@ -22,6 +22,7 @@ class TaskServiceImpl extends ITaskService {
         id: TaskId.newId(),
         title: title,
         description: description ?? '',
+        status: status 
       ),
     );
   }

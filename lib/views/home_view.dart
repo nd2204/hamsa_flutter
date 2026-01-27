@@ -183,7 +183,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
-                    value: AppStrings.selectedStatus,
+                    value: viewModel.getSelectedStatusString(),
                     icon: const Icon(Icons.keyboard_arrow_down),
                     borderRadius: BorderRadius.circular(12),
                     dropdownColor: Colors.grey.shade200,
@@ -203,9 +203,9 @@ class _HomeViewState extends State<HomeView> {
                       ),
                     ],
                     onChanged: (value) {
-                      // setState(() {
-                      //   selectedStatus = value!;
-                      // });
+                     if (value != null) {
+                      viewModel.setSelectedStatusFromString(value);
+                     }
                     },
                   ),
                 ),
@@ -269,10 +269,11 @@ class _HomeViewState extends State<HomeView> {
           builder: (context, vm, child) {
             return StreamBuilder<List<TaskModel>>(
               key: ValueKey(
-                vm.newestFirst,
+               '${vm.newestFirst}-${vm.selectedStatus}',
               ), // Key để tránh tạo stream mới mỗi lần rebuild
               stream: vm.taskNotifier.watchTasksByStatus(
                 newestFirst: vm.newestFirst,
+                status: vm.selectedStatus,
               ),
               builder: (context, asyncSnapshot) {
                 if (asyncSnapshot.connectionState == ConnectionState.waiting) {
