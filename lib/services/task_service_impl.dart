@@ -25,6 +25,7 @@ class TaskServiceImpl extends ITaskService {
       title: title,
       description: description ?? '',
       status: status,
+      createdAt: DateTime.now(),
     );
 
     if (dueDate != null) {
