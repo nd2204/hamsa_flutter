@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
-import 'package:hamsa_flutter/models/user/user_id.dart';
+import 'package:hamsa_flutter/models/user/user.dart';
 import 'package:hamsa_flutter/repositories/task_repo.dart';
 import 'package:hamsa_flutter/services/task_service.dart';
 
@@ -22,7 +22,7 @@ class TaskViewModel extends ChangeNotifier {
   TaskModel? _loadedTask;
 
   TaskStatus selectedStatus = TaskStatus.todo;
-  List<UserId> assignedUsers = [];
+  List<AppUser> assignedUsers = [];
   bool repeatTask = false;
   String repeatCycle = repeatCycles.first;
 
@@ -51,8 +51,8 @@ class TaskViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void assignUser(String? value) {
-    assignedUsers.add(UserId(value!));
+  void assignUser(List<AppUser>? value) {
+    assignedUsers = value!;
     notifyListeners();
   }
 
@@ -135,5 +135,9 @@ class TaskViewModel extends ChangeNotifier {
       status: selectedStatus,
       dueDate: parseDueDate,
     );
+  }
+
+  Stream<List<AppUser>> watchAllUserId() {
+    return userService.watchAll();
   }
 }

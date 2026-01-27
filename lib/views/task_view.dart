@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/app_constants.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
+import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/viewmodels/task_viewmodel.dart';
+import 'package:hamsa_flutter/views/widgets/assign_user_dropdown.dart';
 import 'package:hamsa_flutter/views/widgets/back_button.dart';
 import 'package:provider/provider.dart';
 
@@ -80,16 +82,26 @@ class TaskView extends StatelessWidget {
                                     label: "Trạng thái",
                                   ),
                                   const SizedBox(width: 24),
-                                  _TaskViewDropDownField(
-                                    value:
-                                        viewModel
-                                            .assignedUsers
-                                            .firstOrNull
-                                            ?.value ??
-                                        "what",
-                                    items: <String>["what"], // TODO: add user
-                                    onChanged: viewModel.assignUser,
-                                    label: "Giao cho",
+                                  StreamBuilder(
+                                    stream: viewModel.watchAllUserId(),
+                                    builder: (context, snapshot) {
+                                      final data = snapshot.data ?? [];
+                                      return Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            _TaskViewFieldLabel("Giao cho"),
+                                            const SizedBox(height: 6),
+                                            AssignUsersDropdown(
+                                              onChanged: viewModel.assignUser,
+                                              users: data,
+                                              selected: viewModel.assignedUsers,
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
