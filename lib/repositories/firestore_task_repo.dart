@@ -47,25 +47,33 @@ class FirestoreTaskRepository implements ITaskRepository {
   }
 
   @override
-  Future<List<TaskModel>> listByStatus(TaskStatus status) async {
+  Future<List<TaskModel>> listByStatus(
+    TaskStatus status, {
+    bool newestFirst = true,
+  }) async {
     final query = await _firestore
         .collection(collectionPath)
         .where('status', isEqualTo: status.index)
+        .orderBy('createdAt', descending: newestFirst)
         .get();
     return query.docs.map((doc) => TaskMapper.fromFirestore(doc)).toList();
   }
 
   @override
-  Future<List<TaskModel>> listAll() async {
-    final snapshot = await _firestore.collection(collectionPath).get();
+  Future<List<TaskModel>> listAll({bool newestFirst = true}) async {
+    final snapshot = await _firestore
+        .collection(collectionPath)
+        .orderBy('createdAt', descending: newestFirst)
+        .get();
     return snapshot.docs.map((doc) => TaskMapper.fromFirestore(doc)).toList();
   }
 
   @override
-  Future<List<TaskModel>> listAllAvailable() async {
+  Future<List<TaskModel>> listAllAvailable({bool newestFirst = true}) async {
     final snapshot = await _firestore
         .collection(collectionPath)
         .where('deleted', isEqualTo: false)
+        .orderBy('createdAt', descending: newestFirst)
         .get();
     return snapshot.docs.map((doc) => TaskMapper.fromFirestore(doc)).toList();
   }
@@ -83,12 +91,14 @@ class FirestoreTaskRepository implements ITaskRepository {
   }
 
   @override
-  Stream<List<TaskModel>> watch({TaskStatus? status}) {
+  Stream<List<TaskModel>> watch({TaskStatus? status, bool newestFirst = true}) {
     final collection = _firestore.collection(collectionPath);
 
-    final query = (status != null
-        ? collection.where('status', isEqualTo: status.index)
-        : collection);
+    final query =
+        (status != null
+                ? collection.where('status', isEqualTo: status.index)
+                : collection)
+            .orderBy('createdAt', descending: newestFirst);
 
     return query.snapshots().map(
       (snapshot) =>
@@ -97,19 +107,37 @@ class FirestoreTaskRepository implements ITaskRepository {
   }
 
   @override
-  Stream<List<TaskModel>> watchAvailable({TaskStatus? status}) {
+  Stream<List<TaskModel>> watchAvailable({
+    TaskStatus? status,
+    bool newestFirst = true,
+  }) {
     final collection = _firestore.collection(collectionPath);
 
-    final query =
+    // Build base query
+    var query =
         (status != null
                 ? collection.where('status', isEqualTo: status.index)
                 : collection)
             .where('deleted', isEqualTo: false);
 
-    return query.snapshots().map(
-      (snapshot) =>
-          snapshot.docs.map((doc) => TaskMapper.fromFirestore(doc)).toList(),
-    );
+    // Only use orderBy if newestFirst (descending) to use existing index
+    // For oldestFirst (ascending), we'll sort in memory to avoid needing another index
+    if (newestFirst) {
+      query = query.orderBy('createdAt', descending: true);
+    }
+
+    return query.snapshots().map((snapshot) {
+      var tasks = snapshot.docs
+          .map((doc) => TaskMapper.fromFirestore(doc))
+          .toList();
+
+      // If oldestFirst, sort in memory (ascending by createdAt)
+      if (!newestFirst) {
+        tasks.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      }
+
+      return tasks;
+    });
   }
 
   @override
