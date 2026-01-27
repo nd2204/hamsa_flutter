@@ -191,12 +191,24 @@ extension TaskMapper on TaskModel {
     final assignees = List<String>.from(data['assignees']);
     final comments = List<Map<String, dynamic>>.from(data['comments']);
 
+    // createdAt có thể là null hoặc chưa phải Timestamp (pending serverTimestamp)
+    final rawCreatedAt = data['createdAt'];
+    DateTime safeCreatedAt;
+    if (rawCreatedAt is Timestamp) {
+      safeCreatedAt = rawCreatedAt.toDate();
+    } else if (rawCreatedAt is DateTime) {
+      safeCreatedAt = rawCreatedAt;
+    } else {
+      // Fallback: dùng thời điểm hiện tại nếu field chưa có
+      safeCreatedAt = DateTime.now();
+    }
+
     final task = TaskModel(
       id: TaskId.from(doc.id),
       title: data['title'],
       description: data['description'],
       assignees: assignees.map((value) => UserId(value)).toSet(),
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: safeCreatedAt,
 
       // WARN: fetching comments can be expensive
       comments: comments

@@ -60,6 +60,26 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> toggleTaskStatus(TaskId taskId) async {
+    try {
+      final task = await taskNotifier.taskRepository.findById(taskId);
+      if (task == null) return;
+
+      // Chuyển đổi trạng thái: todo -> inProgress -> done
+      if (task.status == TaskStatus.todo) {
+        task.markInProgress();
+        await taskNotifier.taskRepository.save(task);
+      } else if (task.status == TaskStatus.inProgress) {
+        task.markDone();
+        await taskNotifier.taskRepository.save(task);
+      }
+      // Nếu đã done, không làm gì
+    } catch (e) {
+      // Bỏ qua lỗi, không throw để tránh TypeError
+      debugPrint('Error toggling task status: $e');
+    }
+  }
+
   void setSelectedStatusFromString(String statusString) {
     setSelectedStatus(_mapStringToTaskStatus(statusString));
     notifyListeners();

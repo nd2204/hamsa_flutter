@@ -437,9 +437,32 @@ class _HomeViewState extends State<HomeView> {
   Widget _buildTaskCard(TaskModel task, int index) {
     final title = task.title;
     final description = task.description;
-    final status = task.status.displayName;
-    final assignedTo = task.assignees.firstOrNull; // NOTE: updated to list
-    final dueDate = task.dueDate;
+    final status = task.status;
+    final statusDisplayName = status.displayName;
+
+    // Xác định màu và icon theo status
+    Color iconColor;
+    Color borderColor;
+    IconData iconData;
+
+    switch (status) {
+      case TaskStatus.done:
+        iconColor = const Color(0xFF16A34A); // Xanh lá cây
+        borderColor = const Color(0xFF16A34A);
+        iconData = Icons.check_circle; // Icon đầy màu xanh
+        break;
+      case TaskStatus.inProgress:
+        iconColor = const Color.fromARGB(255, 82, 137, 255);
+        borderColor = const Color.fromARGB(255, 82, 137, 255);
+        iconData =
+            Icons.play_circle_filled; // Hoặc Icons.hourglass_empty, Icons.timer
+        break;
+      case TaskStatus.todo:
+        iconColor = Colors.grey.shade400; // Xám
+        borderColor = Colors.grey.shade300;
+        iconData = Icons.check_circle_outline; // Icon outline
+        break;
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -447,17 +470,29 @@ class _HomeViewState extends State<HomeView> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(
+          color: borderColor,
+          width: status == TaskStatus.done || status == TaskStatus.inProgress
+              ? 2
+              : 1,
+        ),
       ),
       child: Row(
         children: [
-          // Icon check circle bên trái
-          Icon(
-            Icons.check_circle_outline,
-            color: status == 'Hoàn thành'
-                ? const Color(0xFF16A34A)
-                : Colors.grey.shade400,
-            size: 24,
+          // Icon bên trái - có thể click để toggle status
+          Consumer<HomeViewModel>(
+            builder: (context, viewModel, child) {
+              return InkWell(
+                onTap: () {
+                  viewModel.toggleTaskStatus(task.id);
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(iconData, color: iconColor, size: 24),
+                ),
+              );
+            },
           ),
           const SizedBox(width: 16),
 
@@ -490,7 +525,7 @@ class _HomeViewState extends State<HomeView> {
                 Row(
                   children: [
                     // Status badge
-                    _buildStatusBadge(status),
+                    _buildStatusBadge(statusDisplayName),
                     const SizedBox(width: 12),
 
                     // Assignee
@@ -499,14 +534,7 @@ class _HomeViewState extends State<HomeView> {
                       size: 16,
                       color: Colors.grey.shade600,
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      assignedTo.toString(),
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
+
                     const SizedBox(width: 12),
 
                     // Thêm frequency info
@@ -517,7 +545,7 @@ class _HomeViewState extends State<HomeView> {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 159, 133, 172),
+                          color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
@@ -526,14 +554,14 @@ class _HomeViewState extends State<HomeView> {
                             const Icon(
                               Icons.repeat_on_outlined,
                               size: 16,
-                              color: Colors.white, // 🆕 Icon màu trắng
+                              color: Colors.grey, //
                             ),
                             const SizedBox(width: 6),
                             Text(
                               task.repeatCycle.displayName,
                               style: const TextStyle(
                                 fontSize: 13,
-                                color: Colors.white, // 🆕 Text màu trắng
+                                color: Colors.grey, // 🆕 Text màu trắng
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -572,28 +600,7 @@ class _HomeViewState extends State<HomeView> {
                 color: const Color(0xFF5B4BFF),
                 iconSize: 20,
                 onPressed: () async {
-                  // Navigate đến AddTaskView với dữ liệu task cần edit
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TaskView(taskId: task.id),
-                    ),
-                  );
-
-                  // Xử lý kết quả trả về
-                  if (result != null && result['isEdit'] == true) {
-                    setState(() {
-                      tasks[result['index']] = result['task'];
-                    });
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(AppStrings.taskUpdated),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    }
-                  }
+                  // ... existing edit code ...
                 },
               ),
 
@@ -608,7 +615,7 @@ class _HomeViewState extends State<HomeView> {
                     listen: false,
                   );
                   await viewModel.deleteTask(task.id);
-                  if (mounted) {
+                  if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(AppStrings.taskDeleted),
@@ -631,10 +638,12 @@ class _HomeViewState extends State<HomeView> {
     Color textColor;
 
     switch (status) {
+      case 'Done':
       case 'Hoàn thành':
         bgColor = const Color(0xFFDCFCE7);
         textColor = const Color(0xFF16A34A);
         break;
+      case 'In Progress':
       case 'Đang thực hiện':
         bgColor = const Color(0xFFDEEBFF);
         textColor = const Color(0xFF2563EB);

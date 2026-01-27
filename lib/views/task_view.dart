@@ -73,23 +73,27 @@ class TaskView extends StatelessWidget {
 
                               Row(
                                 children: [
-                                  _TaskViewDropDownField(
-                                    value: viewModel.selectedStatus,
-                                    items: TaskStatus.values,
-                                    onChanged: viewModel.setStatus,
-                                    label: "Trạng thái",
+                                  Expanded(
+                                    child: _TaskViewDropDownField(
+                                      value: viewModel.selectedStatus,
+                                      items: TaskStatus.values,
+                                      onChanged: viewModel.setStatus,
+                                      label: "Trạng thái",
+                                    ),
                                   ),
                                   const SizedBox(width: 24),
-                                  _TaskViewDropDownField(
-                                    value:
-                                        viewModel
-                                            .assignedUsers
-                                            .firstOrNull
-                                            ?.value ??
-                                        "what",
-                                    items: <String>["what"], // TODO: add user
-                                    onChanged: viewModel.assignUser,
-                                    label: "Giao cho",
+                                  Expanded(
+                                    child: _TaskViewDropDownField(
+                                      value:
+                                          viewModel
+                                              .assignedUsers
+                                              .firstOrNull
+                                              ?.value ??
+                                          "what",
+                                      items: <String>["what"], // TODO: add user
+                                      onChanged: viewModel.assignUser,
+                                      label: "Giao cho",
+                                    ),
                                   ),
                                 ],
                               ),
@@ -262,35 +266,33 @@ class _TaskViewDropDownField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _TaskViewFieldLabel(label),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade400),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<T>(
-                isExpanded: true,
-                value: value,
-                icon: const Icon(Icons.keyboard_arrow_down),
-                items: items.map((item) {
-                  return DropdownMenuItem(
-                    value: item,
-                    child: Text(item.toString()),
-                  );
-                }).toList(),
-                onChanged: onChanged,
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _TaskViewFieldLabel(label),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<T>(
+              isExpanded: true,
+              value: value,
+              icon: const Icon(Icons.keyboard_arrow_down),
+              items: items.map((item) {
+                return DropdownMenuItem(
+                  value: item,
+                  child: Text(item.toString()),
+                );
+              }).toList(),
+              onChanged: onChanged,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
