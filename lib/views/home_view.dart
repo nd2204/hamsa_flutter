@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/app_constants.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/viewmodels/home_viewmodel.dart';
+import 'package:hamsa_flutter/viewmodels/login_viewmodel.dart';
 import 'package:hamsa_flutter/views/task_view.dart';
 import 'package:provider/provider.dart';
+import 'package:hamsa_flutter/constants/routes.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -82,7 +84,7 @@ class _HomeViewState extends State<HomeView> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               Text(
-                '0%',
+                '$percentage%',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -572,7 +574,14 @@ class _HomeAppBar extends AppBar {
           ),
           const SizedBox(width: 24),
           TextButton.icon(
-            onPressed: () {},
+            onPressed: () async {
+              final loginViewModel = Provider.of<LoginViewModel>(
+                context,
+                listen: false,
+              );
+              await loginViewModel.signOut();
+              Navigator.pushReplacementNamed(context, AppRoute.login.name);
+            },
             icon: const Icon(Icons.logout, color: Colors.grey),
             label: const Text(
               AppStrings.logoutButtonTitle,
