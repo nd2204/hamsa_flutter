@@ -3,6 +3,7 @@ import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
 import 'package:hamsa_flutter/utils/errors.dart';
+import 'package:intl/intl.dart';
 
 class TaskModel {
   final TaskId id;
@@ -49,7 +50,12 @@ class TaskModel {
     _deleted = true;
   }
 
-  void setDueDate(DateTime dueDate) {
+  void setDueDate(DateTime? dueDate) {
+    if (dueDate == null) {
+      _dueDate = null;
+      return;
+    }
+
     if (dueDate.isBefore(createdAt)) {
       throw ValueError(
         value: dueDate,
@@ -101,4 +107,17 @@ class TaskModel {
       "comments=${comments.map((c) => c.toString())},"
       "assignees=${assignees.map((u) => u.value)}"
       ")";
+}
+
+extension TaskModelDateFormat on TaskModel {
+  /// Format dueDate thành chuỗi hiển thị
+  String get formattedDueDate {
+    if (dueDate == null) return 'Chưa có hạn';
+    return DateFormat('dd/MM/yyyy').format(dueDate!);
+  }
+
+  /// Format createdAt thành chuỗi hiển thị
+  String get formattedCreatedAt {
+    return DateFormat('dd/MM/yyyy HH:mm').format(createdAt);
+  }
 }

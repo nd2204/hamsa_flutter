@@ -9,6 +9,7 @@ abstract class ITaskService {
     required String title,
     TaskStatus? status,
     String? description,
+    DateTime? dueDate,
   });
 
   Future<void> markDeleteTask(TaskId id);
