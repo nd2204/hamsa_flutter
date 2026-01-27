@@ -478,7 +478,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      dueDate.toString(),
+                      task.formattedDueDate,
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade600,

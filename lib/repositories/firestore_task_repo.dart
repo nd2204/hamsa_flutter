@@ -180,6 +180,7 @@ extension TaskMapper on TaskModel {
       'assignees': assignees.map((assignee) => assignee.value).toList(),
       'comments': comments.map((comment) => comment.toFirestore()).toList(),
       'deleted': deleted,
+      "dueDate": dueDate != null ? Timestamp.fromDate(dueDate!) : null,
     };
   }
 
@@ -188,7 +189,7 @@ extension TaskMapper on TaskModel {
     final assignees = List<String>.from(data['assignees']);
     final comments = List<Map<String, dynamic>>.from(data['comments']);
 
-    return TaskModel(
+    final task = TaskModel(
       id: TaskId.from(doc.id),
       title: data['title'],
       description: data['description'],
@@ -204,5 +205,9 @@ extension TaskMapper on TaskModel {
       status: TaskStatus.fromInt(data['status']),
       deleted: data['deleted'],
     );
+    if (data['dueDate'] != null) {
+      task.setDueDate((data['dueDate'] as Timestamp).toDate());
+    }
+    return task;
   }
 }

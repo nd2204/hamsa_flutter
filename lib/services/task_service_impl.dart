@@ -17,17 +17,21 @@ class TaskServiceImpl extends ITaskService {
     required String title,
     TaskStatus? status,
     String? description,
+    DateTime? dueDate,
   }) async {
     // TODO: add validation
-
-    await _repo.create(
-      TaskModel(
-        id: TaskId.newId(),
-        title: title,
-        description: description ?? '',
-        status: status 
-      ),
+    final task = TaskModel(
+      id: TaskId.newId(),
+      title: title,
+      description: description ?? '',
+      status: status,
     );
+
+    if (dueDate != null) {
+      task.setDueDate(dueDate);
+    }
+
+    await _repo.create(task);
   }
 
   @override

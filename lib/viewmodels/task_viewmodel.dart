@@ -100,6 +100,31 @@ class TaskViewModel extends ChangeNotifier {
       );
       return;
     }
+    DateTime? parseDueDate;
+    if (dateController.text.isNotEmpty) {
+      try {
+        final parts = dateController.text.split('/');
+        if (parts.length == 3) {
+          parseDueDate = DateTime(
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
+          );
+        }
+      } catch (e) {
+        // Handle parsing error if needed
+      }
+    }
+
+    if (parseDueDate != null && parseDueDate.isBefore(DateTime.now())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Không thể chọn ngày đã qua làm hạn task!'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     // THÊM: Return với thông tin edit
     Navigator.pop(context);
@@ -108,7 +133,7 @@ class TaskViewModel extends ChangeNotifier {
       title: titleController.text,
       description: descController.text,
       status: selectedStatus,
-      // TODO: add due date
+      dueDate: parseDueDate,
     );
   }
 }
