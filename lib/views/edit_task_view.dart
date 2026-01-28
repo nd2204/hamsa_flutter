@@ -7,6 +7,8 @@ import 'package:hamsa_flutter/viewmodels/edit_task_viewmodel.dart';
 import 'package:hamsa_flutter/views/widgets/back_button.dart';
 import 'package:provider/provider.dart';
 
+typedef EditTaskModelSelector<T> = Selector<EditTaskViewModel, T>;
+
 class EditTaskView extends StatelessWidget {
   final TaskId taskId;
   const EditTaskView({super.key, required this.taskId});
@@ -27,7 +29,7 @@ class _EditTaskBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Selector<EditTaskViewModel, bool>(
       selector: (_, vm) => vm.isLoaded,
-      builder: (_, loaded, __) {
+      builder: (_, loaded, _) {
         if (!loaded) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
@@ -220,7 +222,6 @@ class _TaskCard extends StatelessWidget {
 
 class _TaskRepeatSection extends StatelessWidget {
   const _TaskRepeatSection({required this.vm});
-
   final EditTaskViewModel vm;
 
   @override
@@ -231,46 +232,53 @@ class _TaskRepeatSection extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _TaskViewRepeatCheckbox(vm),
-          if (vm.repeatTask)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Selector<EditTaskViewModel, String>(
-                builder: (_, selectedRepeatCycle, child) {
-                  return _TaskViewDropDownField(
-                    value: selectedRepeatCycle,
-                    items: vm.repeatCycles,
-                    onChanged: vm.setRepeatCycle,
-                    label: "Chu kỳ lặp lại",
-                  );
-                },
-                selector: (_, vm) => vm.selectedRepeatCycle.displayName,
-              ),
-            ),
-        ],
+      child: EditTaskModelSelector<bool>(
+        selector: (_, vm) => vm.repeatTask,
+        builder: (context, repeat, child) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _TaskViewRepeatCheckbox(),
+              if (repeat)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Selector<EditTaskViewModel, String>(
+                    builder: (_, selectedRepeatCycle, child) {
+                      return _TaskViewDropDownField(
+                        value: selectedRepeatCycle,
+                        items: vm.repeatCycles,
+                        onChanged: vm.setRepeatCycle,
+                        label: "Chu kỳ lặp lại",
+                      );
+                    },
+                    selector: (_, vm) => vm.selectedRepeatCycle.displayName,
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
 class _TaskViewRepeatCheckbox extends StatelessWidget {
-  final EditTaskViewModel viewModel;
-  const _TaskViewRepeatCheckbox(this.viewModel);
+  const _TaskViewRepeatCheckbox();
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Checkbox(
-          value: viewModel.repeatTask,
-          onChanged: viewModel.setRepeatTask,
-        ),
-        const SizedBox(width: 8),
-        const Text("Lặp lại task", style: TextStyle(fontSize: 16)),
-      ],
+    return Selector<EditTaskViewModel, bool>(
+      selector: (_, vm) => vm.repeatTask,
+      builder: (_, repeat, _) {
+        final vm = context.read<EditTaskViewModel>();
+        return Row(
+          children: [
+            Checkbox(value: repeat, onChanged: vm.setRepeatTask),
+            const SizedBox(width: 8),
+            const Text("Lặp lại task", style: TextStyle(fontSize: 16)),
+          ],
+        );
+      },
     );
   }
 }
