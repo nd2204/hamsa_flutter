@@ -11,10 +11,6 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class EditTaskDialogViewModel extends ChangeNotifier {
-  List<String> repeatCycles = RepeatCycle.values
-      .map((v) => v.displayName)
-      .toList();
-
   EditTaskDialogViewModel(
     this._taskService,
     this._taskRepo,
@@ -41,9 +37,6 @@ class EditTaskDialogViewModel extends ChangeNotifier {
   RepeatCycle _selectedRepeatCycle = RepeatCycle.none;
   RepeatCycle get selectedRepeatCycle => _selectedRepeatCycle;
 
-  bool _repeatTask = false;
-  bool get repeatTask => _repeatTask;
-
   DateTime? _selectedDate;
   DateTime? get taskDueDate => _selectedDate;
 
@@ -65,7 +58,6 @@ class EditTaskDialogViewModel extends ChangeNotifier {
 
       _selectedStatus = task.status;
       _selectedRepeatCycle = task.repeatCycle;
-      _repeatTask = task.repeatCycle != RepeatCycle.none;
 
       if (task.dueDate != null) {
         _selectedDate = task.dueDate;
@@ -101,19 +93,11 @@ class EditTaskDialogViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setRepeatTask(bool? value) {
-    if (value == null || value == _repeatTask) return;
-    _repeatTask = value;
-    _selectedRepeatCycle = .none;
-    notifyListeners();
-  }
-
-  void setRepeatCycle(String? value) {
+  void setRepeatCycle(RepeatCycle? value) {
     if (value == null) return;
-    final cycle = RepeatCycle.fromString(value);
-    if (cycle == _selectedRepeatCycle) return;
+    if (value == _selectedRepeatCycle) return;
 
-    _selectedRepeatCycle = cycle;
+    _selectedRepeatCycle = value;
     notifyListeners();
   }
 

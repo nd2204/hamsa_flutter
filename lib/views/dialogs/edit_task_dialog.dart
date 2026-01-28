@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/app_constants.dart';
+import 'package:hamsa_flutter/models/task/repeat_cycle.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
 import 'package:hamsa_flutter/utils/injectable.dart';
@@ -144,11 +145,12 @@ class _TaskCard extends StatelessWidget {
                 _Selector<TaskStatus>(
                   builder: (_, value, _) {
                     return Expanded(
-                      child: _TaskViewDropDownField(
+                      child: _TaskViewDropDownField<TaskStatus>(
                         value: value,
                         items: TaskStatus.values,
                         onChanged: vm.setStatus,
                         label: "Trạng thái",
+                        mapToDisplayName: (item) => item.displayName,
                       ),
                     );
                   },
@@ -219,60 +221,23 @@ class _TaskRepeatSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: _Selector<bool>(
-        selector: (_, vm) => vm.repeatTask,
-        builder: (context, repeat, child) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const _TaskViewRepeatCheckbox(),
-              if (repeat)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _Selector<String>(
-                    builder: (context, selectedRepeatCycle, child) {
-                      final vm = context.read<EditTaskDialogViewModel>();
-                      return _TaskViewDropDownField(
-                        value: selectedRepeatCycle,
-                        items: vm.repeatCycles,
-                        onChanged: vm.setRepeatCycle,
-                        label: "Chu kỳ lặp lại",
-                      );
-                    },
-                    selector: (_, vm) => vm.selectedRepeatCycle.displayName,
-                  ),
-                ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _TaskViewRepeatCheckbox extends StatelessWidget {
-  const _TaskViewRepeatCheckbox();
-
-  @override
-  Widget build(BuildContext context) {
-    return _Selector<bool>(
-      selector: (_, vm) => vm.repeatTask,
-      builder: (_, repeat, _) {
-        final vm = context.read<EditTaskDialogViewModel>();
-        return Row(
-          children: [
-            Checkbox(value: repeat, onChanged: vm.setRepeatTask),
-            const SizedBox(width: 8),
-            const Text("Lặp lại task", style: TextStyle(fontSize: 16)),
-          ],
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _Selector<RepeatCycle>(
+          builder: (context, selectedRepeatCycle, child) {
+            final vm = context.read<EditTaskDialogViewModel>();
+            return _TaskViewDropDownField<RepeatCycle>(
+              value: selectedRepeatCycle,
+              items: RepeatCycle.values,
+              onChanged: vm.setRepeatCycle,
+              label: "Chu kỳ lặp lại",
+              mapToDisplayName: (item) => item.displayName,
+            );
+          },
+          selector: (_, vm) => vm.selectedRepeatCycle,
+        ),
+      ],
     );
   }
 }
@@ -363,6 +328,7 @@ class _TaskViewDropDownField<T> extends StatelessWidget {
   final T value;
   final List<T> items;
   final ValueChanged<T?> onChanged;
+  final String Function(T)? mapToDisplayName;
   final String label;
 
   const _TaskViewDropDownField({
@@ -370,6 +336,7 @@ class _TaskViewDropDownField<T> extends StatelessWidget {
     required this.label,
     required this.items,
     required this.onChanged,
+    this.mapToDisplayName,
   });
 
   @override
@@ -393,7 +360,11 @@ class _TaskViewDropDownField<T> extends StatelessWidget {
               items: items.map((item) {
                 return DropdownMenuItem(
                   value: item,
-                  child: Text(item.toString()),
+                  child: Text(
+                    mapToDisplayName != null
+                        ? mapToDisplayName!(item)
+                        : item.toString(),
+                  ),
                 );
               }).toList(),
               onChanged: onChanged,
