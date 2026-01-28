@@ -104,6 +104,7 @@ class EditTaskDialogViewModel extends ChangeNotifier {
   void setRepeatTask(bool? value) {
     if (value == null || value == _repeatTask) return;
     _repeatTask = value;
+    _selectedRepeatCycle = .none;
     notifyListeners();
   }
 
