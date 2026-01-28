@@ -1,0 +1,8 @@
+rules_version='2'
+
+service cloud.firestore {
+  match /task/{taskId} {
+    allow create: if request.resource.data.createdAt == request.time
+    allow update: if !('createdAt' in request.resource.data)
+  }
+}
