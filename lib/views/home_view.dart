@@ -7,6 +7,7 @@ import 'package:hamsa_flutter/models/task/task_status.dart';
 import 'package:hamsa_flutter/states/auth_state.dart';
 import 'package:hamsa_flutter/utils/injectable.dart';
 import 'package:hamsa_flutter/viewmodels/home_viewmodel.dart';
+import 'package:hamsa_flutter/views/dialogs/edit_task_dialog.dart';
 import 'package:hamsa_flutter/views/task_view.dart';
 import 'package:provider/provider.dart';
 
@@ -609,10 +610,25 @@ class _HomeViewState extends State<HomeView> {
                 icon: const Icon(Icons.edit_outlined),
                 color: const Color(0xFF5B4BFF),
                 iconSize: 20,
-                onPressed: viewModel.navigateToEditTaskCallback(
-                  context,
-                  task.id,
-                ),
+                onPressed: () async {
+                  bool? ok = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => EditTaskDialog(taskId: task.id),
+                  );
+                  if (ok != null && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      ok
+                          ? SnackBar(
+                              content: Text("Saved task"),
+                              backgroundColor: Colors.green,
+                            )
+                          : SnackBar(
+                              content: Text("Save failed"),
+                              backgroundColor: Colors.red,
+                            ),
+                    );
+                  }
+                },
               ),
 
               // Delete button

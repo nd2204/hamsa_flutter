@@ -98,14 +98,6 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  VoidCallback? navigateToEditTaskCallback(
-    BuildContext context,
-    TaskId taskId,
-  ) {
-    return () =>
-        Navigator.pushNamed(context, AppRoute.taskEdit.name, arguments: taskId);
-  }
-
   VoidCallback? navigateToProfileCallback(BuildContext context) {
     return () => Navigator.pushNamed(context, AppRoute.userProfile.name);
   }
