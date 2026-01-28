@@ -83,5 +83,4 @@ class DefaultFirebaseOptions {
     authDomain: 'hamsa-flutter-task-mgr.firebaseapp.com',
     storageBucket: 'hamsa-flutter-task-mgr.firebasestorage.app',
   );
-
 }

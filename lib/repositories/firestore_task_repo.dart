@@ -155,6 +155,15 @@ class FirestoreTaskRepository implements ITaskRepository {
     if (!doc.exists) return null;
     return TaskMapper.fromFirestore(doc);
   }
+
+  @override
+  Stream<TaskModel> watchTask(TaskId taskId) {
+    return _firestore
+        .collection(collectionPath)
+        .doc(taskId.value)
+        .snapshots()
+        .map(TaskMapper.fromFirestore);
+  }
 }
 
 extension TaskCommentMapper on TaskComment {
