@@ -134,16 +134,37 @@ class FirestoreTaskRepository implements ITaskRepository {
           .map((doc) => TaskMapper.fromFirestore(doc))
           .toList();
 
-      // If oldestFirst, sort in memory (ascending by createdAt)
-      if (needsClientSideSort || !newestFirst) {
-        tasks.sort((a, b) {
-          final comparsion = a.createdAt.compareTo(b.createdAt);
-          return newestFirst ? -comparsion : comparsion;
-        });
+      // // If oldestFirst, sort in memory (ascending by createdAt)
+      // if (needsClientSideSort || !newestFirst) {
+      //   tasks.sort((a, b) {
+      //     final comparsion = a.createdAt.compareTo(b.createdAt);
+      //     return newestFirst ? -comparsion : comparsion;
+      //   });
+      // }
+
+      // return tasks;
+      return _sortTasksByStatusAndCreatedAt(tasks, newestFirst);
+    });
+  }
+  
+  // Sort tasks by status and createdAt
+   List<TaskModel> _sortTasksByStatusAndCreatedAt(
+    List<TaskModel> tasks,
+    bool newestFirst,
+  ) {
+    final sortedTasks = List<TaskModel>.from(tasks);
+    sortedTasks.sort((a, b) {
+      // Bước 1: So sánh theo status (todo=0, inProgress=1, done=2)
+      final statusComparison = a.status.index.compareTo(b.status.index);
+      if (statusComparison != 0) {
+        return statusComparison;
       }
 
-      return tasks;
+      // Bước 2: Nếu cùng status, sort theo createdAt
+      final createdAtComparison = a.createdAt.compareTo(b.createdAt);
+      return newestFirst ? -createdAtComparison : createdAtComparison;
     });
+    return sortedTasks;
   }
 
   @override
