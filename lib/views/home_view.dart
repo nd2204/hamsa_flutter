@@ -423,7 +423,12 @@ class _HomeViewState extends State<HomeView> {
                   padding: const EdgeInsets.all(16),
                   itemCount: data.length,
                   itemBuilder: (context, index) {
-                    return _buildTaskCard(data[index], index);
+                    return _buildTaskCard(
+                      data[index],
+                      index,
+                      context,
+                      viewModel,
+                    );
                   },
                 );
               },
@@ -434,7 +439,12 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildTaskCard(TaskModel task, int index) {
+  Widget _buildTaskCard(
+    TaskModel task,
+    int index,
+    BuildContext context,
+    HomeViewModel viewModel,
+  ) {
     final title = task.title;
     final description = task.description;
     final status = task.status;
@@ -599,9 +609,10 @@ class _HomeViewState extends State<HomeView> {
                 icon: const Icon(Icons.edit_outlined),
                 color: const Color(0xFF5B4BFF),
                 iconSize: 20,
-                onPressed: () async {
-                  // ... existing edit code ...
-                },
+                onPressed: viewModel.navigateToEditTaskCallback(
+                  context,
+                  task.id,
+                ),
               ),
 
               // Delete button

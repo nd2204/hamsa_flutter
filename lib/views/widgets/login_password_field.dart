@@ -6,10 +6,7 @@ import 'package:hamsa_flutter/viewmodels/login_viewmodel.dart';
 class LoginPasswordField extends StatelessWidget {
   final LoginViewModel viewModel;
 
-  const LoginPasswordField({
-    super.key,
-    required this.viewModel,
-  });
+  const LoginPasswordField({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context) {

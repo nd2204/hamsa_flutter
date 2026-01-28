@@ -4,10 +4,7 @@ import 'package:hamsa_flutter/viewmodels/login_viewmodel.dart';
 class LoginErrorMessage extends StatelessWidget {
   final LoginViewModel viewModel;
 
-  const LoginErrorMessage({
-    super.key,
-    required this.viewModel,
-  });
+  const LoginErrorMessage({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context) {

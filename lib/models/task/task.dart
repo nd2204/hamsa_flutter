@@ -8,8 +8,8 @@ import 'package:intl/intl.dart';
 
 class TaskModel {
   final TaskId id;
-  final String title;
-  final String description;
+  String title;
+  String description;
 
   bool _deleted;
   bool get deleted => _deleted;
@@ -73,6 +73,17 @@ class TaskModel {
       );
     }
     _dueDate = dueDate;
+  }
+
+  void setStatus(TaskStatus status) {
+    switch (status) {
+      case TaskStatus.todo:
+        markTodo();
+      case TaskStatus.inProgress:
+        markInProgress();
+      case TaskStatus.done:
+        markDone();
+    }
   }
 
   void markDone() {

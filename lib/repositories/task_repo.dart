@@ -10,7 +10,14 @@ abstract class ITaskRepository {
   Future<void> save(TaskModel task);
   Future<void> delete(TaskId id);
   Future<void> markDeleted(TaskId id, [bool value = true]);
+  Stream<TaskModel> watchTask(TaskId taskId);
   Stream<List<TaskModel>> watch({TaskStatus? status, bool newestFirst = true});
-  Stream<List<TaskModel>> watchAvailable({TaskStatus? status, bool newestFirst = true});
-  Future<List<TaskModel>> listByStatus(TaskStatus status, {bool newestFirst = true});
+  Stream<List<TaskModel>> watchAvailable({
+    TaskStatus? status,
+    bool newestFirst = true,
+  });
+  Future<List<TaskModel>> listByStatus(
+    TaskStatus status, {
+    bool newestFirst = true,
+  });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
+import 'package:hamsa_flutter/views/edit_task_view.dart';
 import 'package:hamsa_flutter/views/task_view.dart';
 import 'package:hamsa_flutter/views/home_view.dart';
 import 'package:hamsa_flutter/views/login_view.dart';
@@ -23,6 +24,7 @@ enum AppRoute {
   signup("/signup"),
   home("/home"),
   task("/task"),
+  taskEdit("/taskEdit"),
   userProfile("/me");
 
   final String name;
@@ -45,6 +47,14 @@ RouteGeneratorCallback generateRoute = (settings) {
     return MaterialPageRoute(
       builder: (context) {
         return _routes[settings.name]!();
+      },
+    );
+  }
+
+  if (settings.name == AppRoute.taskEdit.name) {
+    return MaterialPageRoute(
+      builder: (context) {
+        return EditTaskView(taskId: settings.arguments as TaskId);
       },
     );
   }
