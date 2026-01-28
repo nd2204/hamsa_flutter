@@ -10,12 +10,12 @@ import 'package:hamsa_flutter/utils/errors.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class EditTaskViewModel extends ChangeNotifier {
+class EditTaskDialogViewModel extends ChangeNotifier {
   List<String> repeatCycles = RepeatCycle.values
       .map((v) => v.displayName)
       .toList();
 
-  EditTaskViewModel(
+  EditTaskDialogViewModel(
     this._taskService,
     this._taskRepo,
     @factoryParam this._taskId,

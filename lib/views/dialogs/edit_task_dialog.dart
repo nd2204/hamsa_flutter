@@ -3,71 +3,66 @@ import 'package:hamsa_flutter/constants/app_constants.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
 import 'package:hamsa_flutter/utils/injectable.dart';
-import 'package:hamsa_flutter/viewmodels/edit_task_viewmodel.dart';
-import 'package:hamsa_flutter/views/widgets/back_button.dart';
+import 'package:hamsa_flutter/viewmodels/edit_task_dialog_viewmodel.dart';
 import 'package:provider/provider.dart';
 
-typedef EditTaskModelSelector<T> = Selector<EditTaskViewModel, T>;
+typedef _Selector<T> = Selector<EditTaskDialogViewModel, T>;
 
-class EditTaskView extends StatelessWidget {
+class EditTaskDialog extends StatelessWidget {
   final TaskId taskId;
-  const EditTaskView({super.key, required this.taskId});
+  const EditTaskDialog({super.key, required this.taskId});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => getIt.get<EditTaskViewModel>(param1: taskId),
-      child: _EditTaskBody(),
+      create: (_) => getIt.get<EditTaskDialogViewModel>(param1: taskId),
+      child: _EditTaskDialogBody(),
     );
   }
 }
 
-class _EditTaskBody extends StatelessWidget {
-  const _EditTaskBody();
+class _EditTaskDialogBody extends StatelessWidget {
+  const _EditTaskDialogBody();
 
   @override
   Widget build(BuildContext context) {
-    return Selector<EditTaskViewModel, bool>(
+    return _Selector(
       selector: (_, vm) => vm.isLoaded,
       builder: (_, loaded, _) {
         if (!loaded) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: SizedBox(
+              width: 800,
+              height: 600,
+              child: Center(child: const CircularProgressIndicator()),
+            ),
           );
         }
 
-        return const _EditTaskForm();
+        return const _EditTaskDialogContent();
       },
     );
   }
 }
 
-class _EditTaskForm extends StatelessWidget {
-  const _EditTaskForm();
+class _EditTaskDialogContent extends StatelessWidget {
+  const _EditTaskDialogContent();
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.read<EditTaskViewModel>();
-
-    return Scaffold(
-      body: Stack(
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Stack(
         children: [
-          // Main content
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 800),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: .start,
-                  children: [
-                    AppBackButton(),
-                    _TaskCard(vm: vm),
-                  ],
-                ),
-              ),
-            ),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: _TaskCard(),
           ),
+
+          // Error listener stays
           const _EditTaskErrorListener(),
         ],
       ),
@@ -80,7 +75,7 @@ class _EditTaskErrorListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<EditTaskViewModel, String?>(
+    return _Selector<String?>(
       selector: (_, vm) => vm.error,
       builder: (_, error, _) {
         if (error != null) {
@@ -89,7 +84,7 @@ class _EditTaskErrorListener extends StatelessWidget {
               SnackBar(content: Text(error), backgroundColor: Colors.red),
             );
 
-            context.read<EditTaskViewModel>().clearError();
+            context.read<EditTaskDialogViewModel>().clearError();
           });
         }
 
@@ -100,11 +95,11 @@ class _EditTaskErrorListener extends StatelessWidget {
 }
 
 class _TaskCard extends StatelessWidget {
-  final EditTaskViewModel vm;
-  const _TaskCard({required this.vm});
+  const _TaskCard();
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.read<EditTaskDialogViewModel>();
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -146,7 +141,7 @@ class _TaskCard extends StatelessWidget {
 
             Row(
               children: [
-                Selector<EditTaskViewModel, TaskStatus>(
+                _Selector<TaskStatus>(
                   builder: (_, value, _) {
                     return Expanded(
                       child: _TaskViewDropDownField(
@@ -183,36 +178,9 @@ class _TaskCard extends StatelessWidget {
             ),
 
             const SizedBox(height: 24),
-
-            _TaskRepeatSection(vm: vm),
-
+            const _TaskRepeatSection(),
             const SizedBox(height: 32),
-
-            Row(
-              children: [
-                _TaskViewPrimaryButton(
-                  onPressed: () async {
-                    final ok = await vm.saveTask();
-                    if (ok && context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("Saved task"),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                      Navigator.of(context).maybePop();
-                    }
-                  },
-                  label: AppStrings.saveTaskButtonTitle,
-                  icon: Icons.save,
-                ),
-                const SizedBox(width: 20),
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text(AppStrings.cancelButton),
-                ),
-              ],
-            ),
+            const _FormActionsSection(),
           ],
         ),
       ),
@@ -220,9 +188,34 @@ class _TaskCard extends StatelessWidget {
   }
 }
 
+class _FormActionsSection extends StatelessWidget {
+  const _FormActionsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: .end,
+      children: [
+        _FormCancelButton(
+          onPressed: () => Navigator.pop(context),
+          label: AppStrings.cancelButton,
+        ),
+        const SizedBox(width: 12),
+        _FormSaveButton(
+          onPressed: () async {
+            final ok = await context.read<EditTaskDialogViewModel>().saveTask();
+            if (context.mounted) Navigator.of(context).pop(ok);
+          },
+          label: AppStrings.saveTaskButtonTitle,
+          icon: Icons.save,
+        ),
+      ],
+    );
+  }
+}
+
 class _TaskRepeatSection extends StatelessWidget {
-  const _TaskRepeatSection({required this.vm});
-  final EditTaskViewModel vm;
+  const _TaskRepeatSection();
 
   @override
   Widget build(BuildContext context) {
@@ -232,7 +225,7 @@ class _TaskRepeatSection extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: EditTaskModelSelector<bool>(
+      child: _Selector<bool>(
         selector: (_, vm) => vm.repeatTask,
         builder: (context, repeat, child) {
           return Column(
@@ -242,8 +235,9 @@ class _TaskRepeatSection extends StatelessWidget {
               if (repeat)
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Selector<EditTaskViewModel, String>(
-                    builder: (_, selectedRepeatCycle, child) {
+                  child: _Selector<String>(
+                    builder: (context, selectedRepeatCycle, child) {
+                      final vm = context.read<EditTaskDialogViewModel>();
                       return _TaskViewDropDownField(
                         value: selectedRepeatCycle,
                         items: vm.repeatCycles,
@@ -267,10 +261,10 @@ class _TaskViewRepeatCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<EditTaskViewModel, bool>(
+    return _Selector<bool>(
       selector: (_, vm) => vm.repeatTask,
       builder: (_, repeat, _) {
-        final vm = context.read<EditTaskViewModel>();
+        final vm = context.read<EditTaskDialogViewModel>();
         return Row(
           children: [
             Checkbox(value: repeat, onChanged: vm.setRepeatTask),
@@ -315,12 +309,35 @@ class _TaskViewFieldLabel extends StatelessWidget {
   }
 }
 
-class _TaskViewPrimaryButton extends StatelessWidget {
+class _FormCancelButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  final String label;
+
+  const _FormCancelButton({required this.onPressed, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      style: TextButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: Colors.grey),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      ),
+      onPressed: onPressed,
+      // THAY ĐỔI: Label button
+      child: Text(label, style: const TextStyle(color: Colors.black)),
+    );
+  }
+}
+
+class _FormSaveButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String label;
   final IconData icon;
 
-  const _TaskViewPrimaryButton({
+  const _FormSaveButton({
     required this.onPressed,
     required this.label,
     required this.icon,
@@ -332,7 +349,7 @@ class _TaskViewPrimaryButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF5B4BFF),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       ),
       onPressed: onPressed,
       icon: Icon(icon, color: Colors.white),
