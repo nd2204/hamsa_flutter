@@ -21,6 +21,8 @@ class TaskViewModel extends ChangeNotifier {
   void setRepeatCycle(String? value) {
     if (value == null) return;
     selectedRepeatCycle = RepeatCycle.fromString(value);
+    repeatTask = selectedRepeatCycle != RepeatCycle.none;
+
     notifyListeners();
   }
 
@@ -34,7 +36,7 @@ class TaskViewModel extends ChangeNotifier {
   TaskStatus selectedStatus = TaskStatus.todo;
   List<UserId> assignedUsers = [];
   bool repeatTask = false;
-  String repeatCycle = repeatCycles.first;
+  String get repeatCycle => selectedRepeatCycle.displayName;
 
   TaskViewModel(this.taskService, this.taskRepo);
 
@@ -83,6 +85,11 @@ class TaskViewModel extends ChangeNotifier {
 
   void setRepeatTask(bool? value) {
     repeatTask = value!;
+    if (!repeatTask) {
+      selectedRepeatCycle = RepeatCycle.none;
+    } else if (selectedRepeatCycle == RepeatCycle.none) {
+      selectedRepeatCycle = RepeatCycle.daily;
+    }
     notifyListeners();
   }
 

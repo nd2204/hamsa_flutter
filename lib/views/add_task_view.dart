@@ -211,6 +211,9 @@ class _AddTaskViewState extends State<AddTaskView> {
                         onChanged: (value) {
                           setState(() {
                             repeatTask = value!;
+                            if (!repeatTask) {
+                              repeatCycle = "Hàng ngày";
+                            }
                           });
                         },
                       ),
