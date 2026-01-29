@@ -3,17 +3,20 @@ import 'package:hamsa_flutter/models/task/repeat_cycle.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
+import 'package:hamsa_flutter/models/user/user.dart';
 import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/repositories/task_repo.dart';
 import 'package:hamsa_flutter/services/task_service.dart';
 import 'package:hamsa_flutter/utils/errors.dart';
 import 'package:injectable/injectable.dart';
+import 'package:hamsa_flutter/repositories/user_repo.dart';
 
 @injectable
 class EditTaskDialogViewModel extends ChangeNotifier {
   EditTaskDialogViewModel(
     this._taskService,
     this._taskRepo,
+    this._userRepo,
     @factoryParam this._taskId,
   ) {
     _load();
@@ -21,6 +24,7 @@ class EditTaskDialogViewModel extends ChangeNotifier {
 
   final ITaskService _taskService;
   final ITaskRepository _taskRepo;
+  final IUserRepository _userRepo;
   final TaskId _taskId;
   TaskModel? _loadedTask;
 
@@ -43,6 +47,8 @@ class EditTaskDialogViewModel extends ChangeNotifier {
   List<UserId> _assignedUsers = [];
   List<UserId> get assignedUsers => _assignedUsers;
 
+  List<AppUser> userList = [];
+
   String? _error;
   String? get error => _error;
 
@@ -64,6 +70,8 @@ class EditTaskDialogViewModel extends ChangeNotifier {
         _setDisplayDate(task.dueDate!);
       }
 
+      await _loadUsers();
+
       _isLoaded = true;
       _loadedTask = task;
       notifyListeners();
@@ -71,6 +79,15 @@ class EditTaskDialogViewModel extends ChangeNotifier {
       _emitError(e);
       _isLoaded = true;
       notifyListeners();
+    }
+  }
+
+  Future<void> _loadUsers() async {
+    try {
+      userList = await _userRepo.listAll();
+      notifyListeners();
+    } catch (e) {
+      _emitError(e);
     }
   }
 
@@ -138,6 +155,7 @@ class EditTaskDialogViewModel extends ChangeNotifier {
         ..setStatus(selectedStatus)
         ..setRepeatCycle(selectedRepeatCycle)
         ..setDueDate(taskDueDate);
+      _loadedTask!.setAssignee(assignedUsers);
       await _taskService.saveTask(_loadedTask!);
       return true;
     } catch (e) {

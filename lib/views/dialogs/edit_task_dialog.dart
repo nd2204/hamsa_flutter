@@ -3,8 +3,10 @@ import 'package:hamsa_flutter/constants/app_constants.dart';
 import 'package:hamsa_flutter/models/task/repeat_cycle.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
+import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/utils/injectable.dart';
 import 'package:hamsa_flutter/viewmodels/edit_task_dialog_viewmodel.dart';
+import 'package:hamsa_flutter/views/widgets/task_dropdown.dart';
 import 'package:provider/provider.dart';
 
 typedef _Selector<T> = Selector<EditTaskDialogViewModel, T>;
@@ -150,20 +152,32 @@ class _TaskCard extends StatelessWidget {
                         items: TaskStatus.values,
                         onChanged: vm.setStatus,
                         label: "Trạng thái",
-                        mapToDisplayName: (item) => item.displayName,
+                        itemLabels: TaskStatus.values
+                            .map((v) => v.displayName)
+                            .toList(),
                       ),
                     );
                   },
                   selector: (_, vm) => vm.selectedStatus,
                 ),
                 const SizedBox(width: 24),
-                Expanded(
-                  child: _TaskViewDropDownField(
-                    value: vm.assignedUsers.firstOrNull?.value ?? "what",
-                    items: <String>["what"], // TODO: add user
-                    onChanged: vm.assignUser,
-                    label: "Giao cho",
-                  ),
+                _Selector<List<UserId>>(
+                  builder: (_, assignedUsers, _) {
+                    return Expanded(
+                      child: _TaskViewDropDownField<String>(
+                        value: assignedUsers.firstOrNull?.value,
+                        items: vm.userList
+                            .map((user) => user.id.value)
+                            .toList(),
+                        itemLabels: vm.userList
+                            .map((user) => user.displayName)
+                            .toList(),
+                        onChanged: vm.assignUser,
+                        label: "Giao cho",
+                      ),
+                    );
+                  },
+                  selector: (_, vm) => vm.assignedUsers,
                 ),
               ],
             ),
@@ -227,12 +241,13 @@ class _TaskRepeatSection extends StatelessWidget {
         _Selector<RepeatCycle>(
           builder: (context, selectedRepeatCycle, child) {
             final vm = context.read<EditTaskDialogViewModel>();
+            final items = RepeatCycle.values;
             return _TaskViewDropDownField<RepeatCycle>(
               value: selectedRepeatCycle,
-              items: RepeatCycle.values,
+              items: items,
               onChanged: vm.setRepeatCycle,
               label: "Chu kỳ lặp lại",
-              mapToDisplayName: (item) => item.displayName,
+              itemLabels: items.map((item) => item.displayName).toList(),
             );
           },
           selector: (_, vm) => vm.selectedRepeatCycle,
@@ -325,10 +340,10 @@ class _FormSaveButton extends StatelessWidget {
 }
 
 class _TaskViewDropDownField<T> extends StatelessWidget {
-  final T value;
+  final T? value;
   final List<T> items;
+  final List<String>? itemLabels;
   final ValueChanged<T?> onChanged;
-  final String Function(T)? mapToDisplayName;
   final String label;
 
   const _TaskViewDropDownField({
@@ -336,7 +351,7 @@ class _TaskViewDropDownField<T> extends StatelessWidget {
     required this.label,
     required this.items,
     required this.onChanged,
-    this.mapToDisplayName,
+    this.itemLabels,
   });
 
   @override
@@ -352,23 +367,12 @@ class _TaskViewDropDownField<T> extends StatelessWidget {
             border: Border.all(color: Colors.grey.shade400),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<T>(
-              isExpanded: true,
-              value: value,
-              icon: const Icon(Icons.keyboard_arrow_down),
-              items: items.map((item) {
-                return DropdownMenuItem(
-                  value: item,
-                  child: Text(
-                    mapToDisplayName != null
-                        ? mapToDisplayName!(item)
-                        : item.toString(),
-                  ),
-                );
-              }).toList(),
-              onChanged: onChanged,
-            ),
+          child: TaskDropdown(
+            value: value,
+            hint: 'Chọn ${label.toLowerCase()}',
+            onChanged: onChanged,
+            items: items,
+            itemLabels: itemLabels,
           ),
         ),
       ],
