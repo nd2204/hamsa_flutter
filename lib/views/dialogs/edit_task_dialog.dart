@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hamsa_flutter/constants/app_constants.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
+import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/utils/injectable.dart';
 import 'package:hamsa_flutter/viewmodels/edit_task_dialog_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -155,13 +156,23 @@ class _TaskCard extends StatelessWidget {
                   selector: (_, vm) => vm.selectedStatus,
                 ),
                 const SizedBox(width: 24),
-                Expanded(
-                  child: _TaskViewDropDownField(
-                    value: vm.assignedUsers.firstOrNull?.value ?? "what",
-                    items: <String>["what"], // TODO: add user
-                    onChanged: vm.assignUser,
-                    label: "Giao cho",
-                  ),
+                _Selector<List<UserId>>(
+                  builder: (_, assignedUsers, _) {
+                    return Expanded(
+                      child: _TaskViewDropDownField<String>(
+                        value: assignedUsers.firstOrNull?.value,
+                        items: vm.userList
+                            .map((user) => user.id.value)
+                            .toList(),
+                        itemLabels: vm.userList
+                            .map((user) => user.displayName)
+                            .toList(),
+                        onChanged: vm.assignUser,
+                        label: "Giao cho",
+                      ),
+                    );
+                  },
+                  selector: (_, vm) => vm.assignedUsers,
                 ),
               ],
             ),
@@ -236,10 +247,10 @@ class _TaskRepeatSection extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: _Selector<String>(
-                    builder: (context, selectedRepeatCycle, child) {
+                    builder: (_, cycle, _) {
                       final vm = context.read<EditTaskDialogViewModel>();
                       return _TaskViewDropDownField(
-                        value: selectedRepeatCycle,
+                        value: cycle,
                         items: vm.repeatCycles,
                         onChanged: vm.setRepeatCycle,
                         label: "Chu kỳ lặp lại",
@@ -360,8 +371,9 @@ class _FormSaveButton extends StatelessWidget {
 }
 
 class _TaskViewDropDownField<T> extends StatelessWidget {
-  final T value;
+  final T? value;
   final List<T> items;
+  final List<String>? itemLabels;
   final ValueChanged<T?> onChanged;
   final String label;
 
@@ -370,7 +382,15 @@ class _TaskViewDropDownField<T> extends StatelessWidget {
     required this.label,
     required this.items,
     required this.onChanged,
+    this.itemLabels,
   });
+
+  String _getDisplayText(int index) {
+    if (itemLabels != null && index >= 0 && index < itemLabels!.length) {
+      return itemLabels![index];
+    }
+    return items[index].toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -389,13 +409,26 @@ class _TaskViewDropDownField<T> extends StatelessWidget {
             child: DropdownButton<T>(
               isExpanded: true,
               value: value,
+              hint: Text(
+                'Chọn ${label.toLowerCase()}',
+                style: TextStyle(color: Colors.grey.shade600),
+              ),
               icon: const Icon(Icons.keyboard_arrow_down),
-              items: items.map((item) {
+              selectedItemBuilder: (BuildContext context) {
+                return items.asMap().entries.map((entry) {
+                  return Text(
+                    _getDisplayText(entry.key),
+                    style: const TextStyle(color: Colors.black),
+                  );
+                }).toList();
+              },
+              items: List.generate(items.length, (index) {
+                final displayText = _getDisplayText(index);
                 return DropdownMenuItem(
-                  value: item,
-                  child: Text(item.toString()),
+                  value: items[index],
+                  child: Text(displayText),
                 );
-              }).toList(),
+              }),
               onChanged: onChanged,
             ),
           ),

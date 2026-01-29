@@ -71,31 +71,38 @@ class TaskView extends StatelessWidget {
 
                               const SizedBox(height: 24),
 
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _TaskViewDropDownField(
-                                      value: viewModel.selectedStatus,
-                                      items: TaskStatus.values,
-                                      onChanged: viewModel.setStatus,
-                                      label: "Trạng thái",
+                              Container(
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: _TaskViewDropDownField(
+                                        value: viewModel.selectedStatus,
+                                        items: TaskStatus.values,
+                                        onChanged: viewModel.setStatus,
+                                        label: "Trạng thái",
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 24),
-                                  Expanded(
-                                    child: _TaskViewDropDownField(
-                                      value:
-                                          viewModel
-                                              .assignedUsers
-                                              .firstOrNull
-                                              ?.value ??
-                                          "what",
-                                      items: <String>["what"], // TODO: add user
-                                      onChanged: viewModel.assignUser,
-                                      label: "Giao cho",
+                                    const SizedBox(width: 24),
+                                    Expanded(
+                                      child: _TaskViewDropDownField(
+                                        value: viewModel
+                                            .assignedUsers
+                                            .firstOrNull
+                                            ?.value,
+                                        items: viewModel.userList
+                                            .map((user) => user.id.value)
+                                            .toList(),
+                                        itemLabels: viewModel.userList
+                                            .map((user) => user.displayName)
+                                            .toList(),
+                                        onChanged: viewModel.assignUser,
+                                        label: "Giao cho",
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
 
                               const SizedBox(height: 24),
@@ -252,8 +259,9 @@ class _TaskViewPrimaryButton extends StatelessWidget {
 }
 
 class _TaskViewDropDownField<T> extends StatelessWidget {
-  final T value;
+  final T? value;
   final List<T> items;
+  final List<String>? itemLabels;
   final ValueChanged<T?> onChanged;
   final String label;
 
@@ -262,7 +270,18 @@ class _TaskViewDropDownField<T> extends StatelessWidget {
     required this.label,
     required this.items,
     required this.onChanged,
+    this.itemLabels,
   });
+
+  String _getDisplayText() {
+    if (value == null) return 'Chọn ${label.toLowerCase()}';
+
+    final index = items.indexOf(value as T);
+    if (index >= 0 && itemLabels != null && index < itemLabels!.length) {
+      return itemLabels![index];
+    }
+    return value.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -281,13 +300,20 @@ class _TaskViewDropDownField<T> extends StatelessWidget {
             child: DropdownButton<T>(
               isExpanded: true,
               value: value,
+              hint: Text(
+                'Chọn ${label.toLowerCase()}',
+                style: TextStyle(color: Colors.grey.shade600),
+              ),
               icon: const Icon(Icons.keyboard_arrow_down),
-              items: items.map((item) {
-                return DropdownMenuItem(
-                  value: item,
-                  child: Text(item.toString()),
-                );
-              }).toList(),
+              items: List.generate(items.length, (index) {
+                final item = items[index];
+                final displayText =
+                    itemLabels != null && index < itemLabels!.length
+                    ? itemLabels![index]
+                    : item.toString();
+
+                return DropdownMenuItem(value: item, child: Text(displayText));
+              }),
               onChanged: onChanged,
             ),
           ),

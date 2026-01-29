@@ -4,6 +4,8 @@ import 'package:hamsa_flutter/constants/routes.dart';
 import 'package:hamsa_flutter/models/task/repeat_cycle.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
+import 'package:hamsa_flutter/models/user/user.dart';
+import 'package:hamsa_flutter/repositories/user_repo.dart';
 import 'package:hamsa_flutter/states/auth_state.dart';
 import 'package:hamsa_flutter/utils/injectable.dart';
 import 'package:hamsa_flutter/viewmodels/home_viewmodel.dart';
@@ -540,11 +542,51 @@ class _HomeViewState extends State<HomeView> {
                     const SizedBox(width: 12),
 
                     // Assignee
-                    Icon(
-                      Icons.person_outline,
-                      size: 16,
-                      color: Colors.grey.shade600,
-                    ),
+                    if (task.assignees.isNotEmpty)
+                      FutureBuilder<AppUser?>(
+                        future: getIt<IUserRepository>().get(
+                          task.assignees.first,
+                        ),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && snapshot.data != null) {
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.person_outline,
+                                  size: 16,
+                                  color: Colors.grey.shade600,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  snapshot.data!.displayName,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                          return Icon(
+                            Icons.person_outline,
+                            size: 16,
+                            color: Colors.grey.shade600,
+                          );
+                        },
+                      )
+                    else
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.person_outline,
+                            size: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                      ),
 
                     const SizedBox(width: 12),
 
