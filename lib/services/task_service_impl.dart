@@ -2,6 +2,7 @@ import 'package:hamsa_flutter/models/task/repeat_cycle.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
+import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/repositories/task_repo.dart';
 import 'package:hamsa_flutter/services/task_service.dart';
 import 'package:hamsa_flutter/utils/injectable.dart';
@@ -20,8 +21,8 @@ class TaskServiceImpl extends ITaskService {
     String? description,
     DateTime? dueDate,
     RepeatCycle? repeatCycle,
+    Set<UserId>? assignees,
   }) async {
-    // TODO: add validation
     final task = TaskModel(
       id: TaskId.newId(),
       title: title,
@@ -29,6 +30,7 @@ class TaskServiceImpl extends ITaskService {
       status: status,
       createdAt: DateTime.now(),
       repeatCycle: repeatCycle ?? RepeatCycle.none,
+      assignees: assignees,
     );
 
     if (dueDate != null) {

@@ -3,13 +3,14 @@ import 'package:hamsa_flutter/models/task/repeat_cycle.dart';
 import 'package:hamsa_flutter/models/task/task.dart';
 import 'package:hamsa_flutter/models/task/task_id.dart';
 import 'package:hamsa_flutter/models/task/task_status.dart';
+import 'package:hamsa_flutter/models/user/user.dart';
 import 'package:hamsa_flutter/models/user/user_id.dart';
 import 'package:hamsa_flutter/repositories/task_repo.dart';
+import 'package:hamsa_flutter/repositories/user_repo.dart';
 import 'package:hamsa_flutter/services/task_service.dart';
 
 class TaskViewModel extends ChangeNotifier {
   static const List<String> repeatCycles = [
-    "Không lặp lại",
     "Hàng ngày",
     "Hàng tuần",
     "Hàng tháng",
@@ -26,8 +27,14 @@ class TaskViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void loadUsers() async {
+    userList = await userRepo.listAll();
+    notifyListeners();
+  }
+
   final ITaskService taskService;
   final ITaskRepository taskRepo;
+  final IUserRepository userRepo;
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
@@ -35,13 +42,17 @@ class TaskViewModel extends ChangeNotifier {
 
   TaskStatus selectedStatus = TaskStatus.todo;
   List<UserId> assignedUsers = [];
+  List<AppUser> userList = [];
   bool repeatTask = false;
   String get repeatCycle => selectedRepeatCycle.displayName;
 
-  TaskViewModel(this.taskService, this.taskRepo);
+  TaskViewModel(this.taskService, this.taskRepo, this.userRepo) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadUsers();
+    });
+  }
 
   void loadTask(TaskId taskId) {
-    // TODO: handle error
     taskRepo.findById(taskId).then((task) {
       _loadedTask = task;
       notifyListeners();
@@ -64,7 +75,10 @@ class TaskViewModel extends ChangeNotifier {
   }
 
   void assignUser(String? value) {
-    assignedUsers.add(UserId(value!));
+    if (value == null) return;
+
+    assignedUsers.clear();
+    assignedUsers.add(UserId(value));
     notifyListeners();
   }
 
@@ -147,6 +161,7 @@ class TaskViewModel extends ChangeNotifier {
       status: selectedStatus,
       dueDate: parseDueDate,
       repeatCycle: selectedRepeatCycle,
+      assignees: assignedUsers.toSet(),
     );
   }
 }

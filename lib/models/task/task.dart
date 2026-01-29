@@ -111,6 +111,11 @@ class TaskModel {
     throw StateError(message: "User is not assigned to this task");
   }
 
+  void setAssignee(Iterable<UserId> uids) {
+    _assignees.clear();
+    _assignees.addAll(uids);
+  }
+
   void addComment(TaskComment comment) {
     _comments.add(comment);
   }
